@@ -26,7 +26,7 @@ const GeneratorForm = () => {
 
 		try {
 			const response = await axios.post(
-				"https://notificaciones-coope-hluh.vercel.app//generate-pdf",
+				"https://notificaciones-coope-hluh.vercel.app/generate-pdf",
 				formData,
 				{
 					responseType: "blob",
