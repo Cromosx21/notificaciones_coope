@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin-top: 5.75cm;
+            margin-bottom: 2.54cm;
+            margin-left: 2.54cm;
+            margin-right: 2.54cm;
+        }
+        body {
+            font-family: 'Cambria', serif;
+            font-size: 11pt;
+            line-height: 1.5;
+            color: #000;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-justify {
+            text-align: justify;
+        }
+        .bold {
+            font-weight: bold;
+        }
+        .underline {
+            text-decoration: underline;
+        }
+        .text-red {
+            color: red;
+        }
+        .mt-1 {
+            margin-top: 0.25rem;
+        }
+        .mt-2 {
+            margin-top: 0.5rem;
+        }
+        .mt-3 {
+            margin-top: 0.75rem;
+        }
+        .mt-4 {
+            margin-top: 1rem;
+        }
+        .mt-8 {
+            margin-top: 2rem;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+        }
+        .border {
+            border: 1px solid #000;
+        }
+        .border-red-500 {
+            border-color: red;
+        }
+        ol {
+            padding-left: 2rem;
+        }
+        li {
+            margin-bottom: 0.5rem;
+            text-align: justify;
+        }
+        .font-bold {
+            font-weight: bold;
+        }
+        .w-fit {
+            width: fit-content;
+        }
+        .flex-container {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .p-1 {
+            padding: 0.25rem;
+        }
+        .text-xs {
+            font-size: 12pt;
+        }
+        
+
+    </style>
+</head>
+<body>
+    <div class="flex-container ">
+        <div class="text-right border border-red-500 w-fit p-1"><span class="bold">Expediente:</span> 00458-2026</div>
+    </div>
+    
+    <div class="text-center bold underline mt-2 text-xs">CARTA Nº 001-2026 / AREA LEGAL - NOTIFICACIÓN DE ESTADO CRÍTICO</div>
+    
+    <div class="mt-4">
+        <span class="bold">SOCIO(A):</span> <%= nombre %>
+    </div>
+    
+    <div class="flex-between mt-1">
+        <div><span class="bold">DNI / RUC:</span> <%= dni %></div>
+        <div><span class="bold">DOMICILIO:</span> <%= direction %></div>
+    </div>
+    
+    <div class="mt-2">
+        <span class="bold">DEUDA TOTAL DE LA OBLIGACIÓN:</span> <span class="bold text-red">S/ <%= monto_total %></span>
+    </div>
+    
+    <div class="bold mt-4">DETERMINACIÓN DE ACCIÓN LEGAL POR ABANDONO DE DEUDA</div>
+    
+    <div class="text-justify mt-2">
+        La presente tiene por objeto comunicarle el <span class="bold">ESTADO CRÍTICO</span> en el que se encuentra su obligación financiera con la <span class="bold">COOPAC NIÑO REY</span>. Tras haber agotado las instancias administrativas de cobranza ordinaria sin respuesta de su parte, su expediente ha sido derivado a esta instancia legal para el inicio de las acciones de recuperación forzosa.
+    </div>
+    
+    <div class="text-justify mt-2">
+        <span class="bold">ADVERTENCIA DE ESTADO JUDICIAL:</span> Le informamos que, de persistir su falta de contacto, nuestra institución procederá con el ejercicio de sus facultades legales según el <span class="bold">Código Procesal Civil</span>, lo que incluye:
+    </div>
+    
+    <ol class="mt-2">
+        <li><span class="bold">EJECUCIÓN DE TÍTULOS VALORES:</span> Inicio del proceso judicial por el monto total de la deuda más intereses devengados a la fecha.</li>
+        <li><span class="bold">MEDIDAS DE EMBARGO (Art. 642 C.P.C.):</span> Afectación de bienes muebles, inmuebles y retención de fondos en sus cuentas bancarias dentro del sistema financiero nacional.</li>
+        <li><span class="bold">INCREMENTO POR COSTAS Y COSTOS:</span> Según ley, el deudor deberá asumir los honorarios de abogados y tasas judiciales, lo que elevará sustancialmente su deuda actual.</li>
+    </ol>
+    
+    <div class="text-justify mt-2">
+        <span class="bold">SOLICITUD DE COMUNICACIÓN INMEDIATA:</span> Esta área legal aún tiene la facultad de <span class="bold">detener el proceso judicial</span> si existe una manifestación de voluntad de pago inmediata. Se le otorga un plazo de <span class="bold"><%= plazo_horas %> HORAS</span> para comunicarse al <span class="bold">969 673 200</span>, con nuestro gestor asignado y evitar que su expediente sea ingresado al Poder Judicial de Ayacucho.
+    </div>
+    
+    <div class="text-center bold mt-4">
+        EVITE EL PERJUICIO DE SU PATRIMONIO Y EL BLOQUEO DEFINITIVO EN CENTRALES DE RIESGO.
+    </div>
+    
+    <div class="mt-4">
+        Atentamente,
+    </div>
+    <div class="mt-8 text-center font-bold">
+        Área legal - Recuperaciones
+    </div>
+</body>
+</html>
