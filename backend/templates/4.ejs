@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<style>
+			<%= inlineStyles %>
+			.text{
+				font-size: 10pt;
+			}
+		</style>
+	</head>
+	<body class="text">
+		<div class="flex-container">
+			<div class="text-right border border-red-500 w-fit p-1">
+				<span class="bold">Expediente:</span> 00458-2026
+			</div>
+		</div>
+
+		<div class="text-center bold underline mt-2 text-xs">
+			CARTA Nº 004-2026 / AUTO DE CIERRE PROCESAL Y EJECUCIÓN FORZADA
+		</div>
+
+		<div class="mt-4">
+			<span class="bold">SOCIO(A):</span> <%= nombre %>
+		</div>
+
+		<div class="flex-between">
+			<div><span class="bold">DNI / RUC:</span> <%= dni %></div>
+			<div><span class="bold">DOMICILIO:</span> <%= direction %></div>
+		</div>
+
+		<div class="mt-1">
+			<span class="bold">DEUDA TOTAL DE LA OBLIGACIÓN:</span>
+			<span class="bold text-red">S/ <%= monto_total %></span>
+		</div>
+
+		<div class="bold mt-2">ORDEN DE EJECUCIÓN DE MEDIDA CAUTELAR</div>
+
+		<div class="text-justify mt-2">
+			Se le comunica que, habiendo vencido todos los plazos de gracia y
+			ofertas de condonación, su expediente ha sido
+			<span class="bold"
+				>CERRADO DEFINITIVAMENTE EN LA VÍA ADMINISTRATIVA</span
+			>. En cumplimiento del
+			<span class="bold">Art. 1219 del Código Civil</span> y el
+			<span class="bold">Art. 688 del Código Procesal Civil</span>, se ha
+			dispuesto el inicio de la
+			<span class="bold">ejecución forzada</span>
+			de su patrimonio para cubrir el saldo total de la deuda más costas y
+			costos.
+		</div>
+
+		<div class="text-justify mt-2 bold">
+			DILIGENCIA DE VERIFICACIÓN DE BIENES (PRE-EMBARGO):
+		</div>
+
+		<div class="text-justify mt-1">
+			Esta notificación constituye el último acto de cercioramiento en su
+			domicilio. Nuestro personal de campo ha procedido a registrar para
+			el expediente judicial la existencia de activos susceptibles de
+			<span class="bold">secuestro conservativo (Art. 643 CPC)</span>:
+		</div>
+
+		<ul class="mt-2">
+			<li>
+				<span class="bold">BIENES MUEBLES:</span> Línea blanca, equipos
+				electrónicos, menaje y juegos de sala/comedor.
+			</li>
+			<li>
+				<span class="bold">VEHÍCULOS:</span> Orden de captura inmediata
+				en la vía pública a través de la PNP.
+			</li>
+			<li>
+				<span class="bold">ACTIVOS FINANCIEROS:</span> Retención de
+				saldos en cuentas sueldo, ahorros y haberes.
+			</li>
+			<li>
+				<span class="bold">INMUEBLES:</span> Anotación preventiva de
+				embargo en SUNARP sobre propiedades registradas.
+			</li>
+		</ul>
+
+		<div class="text-justify mt-2 bold">ADVERTENCIAS DE LEY:</div>
+
+		<ul>
+			<li class="list-decimal">
+			
+				<span class="bold">AUXILIO DE LA FUERZA PÚBLICA:</span>
+				La diligencia de retiro de bienes se realizará con apoyo de la
+				Policía Nacional del Perú para garantizar el ingreso al predio.
+			</li>
+			<li class="list-decimal">
+				<span class="bold">ORDEN DE DESCERRAJE:</span>
+				Se ha solicitado la autorización judicial para la apertura forzada
+				de cerraduras en caso de resistencia o ausencia de los ocupantes.
+			</li>
+			<li class="list-decimal">
+				<span class="bold">COSTOS DE EJECUCIÓN:</span>
+				Usted asumirá el pago de fletes, estibadores, depósito vehicular y
+				honorarios del custodio de bienes.
+			</li>
+		</ul>
+
+
+		<div class="text-justify mt-2">
+			<span class="bold">ÚLTIMO PLAZO DE SUSPENSIÓN:</span>
+			Una vez ingresada la demanda al sistema del Poder Judicial, no hay
+			marcha atrás. Si desea detener la llegada de la fuerza pública y el
+			camión de embargo a su domicilio, tiene un plazo máximo de
+			<span class="bold">6 HORAS</span>
+			para presentar el voucher de pago total en nuestra oficina central.
+		</div>
+
+		<div class="text-center bold mt-2">
+			"LA COOPAC NIÑO REY NO SE RESPONSABILIZA POR EL IMPACTO PSICOLÓGICO
+			O SOCIAL DEL RETIRO DE BIENES EN PRESENCIA DE FAMILIARES O VECINOS".
+		</div>
+
+		<div class="mt-2">Atentamente,</div>
+		<div class="mt-4 text-center font-bold">
+			Área legal - Recuperaciones
+		</div>
+	</body>
+</html>

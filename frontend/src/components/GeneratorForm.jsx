@@ -2,20 +2,106 @@ import React, { useState } from "react";
 import axios from "axios";
 
 const GeneratorForm = () => {
-	const [formData, setFormData] = useState({
-		nombre: "",
+	const initialFormData = {
+		templateId: "1",
+		nombres: "",
+		apellidos: "",
 		dni: "",
 		direction: "",
 		monto_total: "",
 		plazo_horas: "",
-	});
+		interes: "",
+		mora: "",
+		celular: "",
+	};
+
+	const [formData, setFormData] = useState(initialFormData);
 	const [loading, setLoading] = useState(false);
 	const [message, setMessage] = useState(null);
 
+	const chooseApiBase = async () => {
+		if (import.meta.env.DEV) {
+			try {
+				await axios.get("http://localhost:5000/health", {
+					timeout: 2000,
+				});
+				return "http://localhost:5000";
+			} catch (_e) {
+				void _e;
+			}
+			try {
+				await axios.get("http://localhost:5001/health", {
+					timeout: 2000,
+				});
+				return "http://localhost:5001";
+			} catch (_e) {
+				void _e;
+			}
+		}
+		return import.meta.env.VITE_API_URL || "http://localhost:5000";
+	};
+
+	const normalizeAmountInput = (value) => {
+		const cleaned = String(value ?? "")
+			.replace(/,/g, "")
+			.replace(/[^\d.]/g, "");
+		const [intPart, ...rest] = cleaned.split(".");
+		const decimalPart = rest.length ? rest.join("") : undefined;
+		return decimalPart === undefined
+			? intPart
+			: `${intPart}.${decimalPart}`;
+	};
+
+	const formatAmountInput = (rawValue) => {
+		const value = String(rawValue ?? "");
+		if (!value) return "";
+
+		const endsWithDot = value.endsWith(".");
+		const [rawInt = "", rawDec] = value.split(".");
+		const intPart = rawInt === "" ? "0" : rawInt;
+		const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+		if (endsWithDot) return `${formattedInt}.`;
+		if (rawDec === undefined) return formattedInt;
+		return `${formattedInt}.${rawDec}`;
+	};
+
+	const parseAmountNumber = (rawValue) => {
+		const n = Number(String(rawValue ?? ""));
+		return Number.isFinite(n) ? n : 0;
+	};
+
+	const resetForm = () => {
+		setFormData({
+			...initialFormData,
+			templateId: formData.templateId,
+		});
+		setMessage(null);
+	};
+
 	const handleChange = (e) => {
+		const { name, value } = e.target;
+
+		if (name === "templateId") {
+			setFormData({
+				...initialFormData,
+				templateId: value,
+			});
+			setMessage(null);
+			return;
+		}
+
+		if (name === "monto_total" || name === "interes" || name === "mora") {
+			setFormData({
+				...formData,
+				[name]: normalizeAmountInput(value),
+			});
+			return;
+		}
+
 		setFormData({
 			...formData,
-			[e.target.name]: e.target.value,
+			[name]: value,
 		});
 	};
 
@@ -25,18 +111,72 @@ const GeneratorForm = () => {
 		setMessage(null);
 
 		try {
-			const response = await axios.post(
-				"https://notificaciones-coope-hluh.vercel.app/generate-pdf",
-				formData,
-				{
-					responseType: "blob",
-				},
-			);
+			const API_URL = await chooseApiBase();
+
+			const payload = {
+				templateId: formData.templateId,
+				nombre: `${formData.apellidos} ${formData.nombres}`.toUpperCase(),
+				dni: formData.dni,
+				direction: formData.direction.toUpperCase(),
+				monto_total: parseAmountNumber(
+					formData.monto_total,
+				).toLocaleString("en-US", {
+					minimumFractionDigits: 2,
+					maximumFractionDigits: 2,
+				}),
+				plazo_horas: formData.plazo_horas,
+				interes:
+					formData.templateId === "3"
+						? parseAmountNumber(formData.interes).toLocaleString(
+								"en-US",
+								{
+									minimumFractionDigits: 2,
+									maximumFractionDigits: 2,
+								},
+							)
+						: undefined,
+				mora:
+					formData.templateId === "3"
+						? parseAmountNumber(formData.mora).toLocaleString(
+								"en-US",
+								{
+									minimumFractionDigits: 2,
+									maximumFractionDigits: 2,
+								},
+							)
+						: undefined,
+			};
+
+			let response;
+			try {
+				response = await axios.post(
+					`${API_URL}/generate-pdf`,
+					payload,
+					{
+						responseType: "blob",
+					},
+				);
+			} catch (err) {
+				if (API_URL === "http://localhost:5000" && err.request) {
+					response = await axios.post(
+						`http://localhost:5001/generate-pdf`,
+						payload,
+						{ responseType: "blob" },
+					);
+				} else {
+					throw err;
+				}
+			}
 
 			const url = window.URL.createObjectURL(new Blob([response.data]));
 			const link = document.createElement("a");
 			link.href = url;
-			link.setAttribute("download", `Notificacion_${formData.dni}.pdf`);
+			const filename =
+				`${formData.apellidos.toUpperCase()}_${formData.nombres.toUpperCase()}.pdf`.replace(
+					/\s+/g,
+					"_",
+				);
+			link.setAttribute("download", filename);
 			document.body.appendChild(link);
 			link.click();
 			link.remove();
@@ -45,6 +185,8 @@ const GeneratorForm = () => {
 				type: "success",
 				text: "PDF generado y descargado con éxito.",
 			});
+
+			resetForm();
 		} catch (error) {
 			console.error("Error:", error);
 			let errorMsg = "Error al conectar con el servidor.";
@@ -62,7 +204,7 @@ const GeneratorForm = () => {
 						const json = JSON.parse(text);
 						if (json.error) errorMsg = json.error;
 					} catch (e) {
-						// No es JSON
+						void e;
 					}
 				}
 			} else if (error.request) {
@@ -96,17 +238,58 @@ const GeneratorForm = () => {
 				<div className="space-y-5">
 					<div className="group">
 						<label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider group-focus-within:text-violet-400 transition-colors">
-							Nombre Completo
+							Tipo de Notificación
 						</label>
-						<input
-							type="text"
-							name="nombre"
-							value={formData.nombre}
+						<select
+							name="templateId"
+							value={formData.templateId}
 							onChange={handleChange}
-							required
-							className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-white placeholder-gray-600 transition-all duration-200"
-							placeholder="Ej. Juan Pérez"
-						/>
+							className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-white transition-all duration-200"
+						>
+							<option value="1">
+								Carta N° 001 - Estado de socio
+							</option>
+							<option value="2">
+								Carta N° 002 - Liquidación de costos
+							</option>
+							<option value="3">
+								Carta N° 003 - Oportunidad de Saneamiento
+							</option>
+							<option value="4">
+								Carta N° 004 - Auto Cierre Procesal
+							</option>
+						</select>
+					</div>
+
+					<div className="grid grid-cols-2 gap-5">
+						<div className="group">
+							<label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider group-focus-within:text-violet-400 transition-colors">
+								Apellidos
+							</label>
+							<input
+								type="text"
+								name="apellidos"
+								value={formData.apellidos}
+								onChange={handleChange}
+								required
+								className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-white placeholder-gray-600 transition-all duration-200"
+								placeholder="Ej. PÉREZ GARCÍA"
+							/>
+						</div>
+						<div className="group">
+							<label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider group-focus-within:text-violet-400 transition-colors">
+								Nombres
+							</label>
+							<input
+								type="text"
+								name="nombres"
+								value={formData.nombres}
+								onChange={handleChange}
+								required
+								className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-white placeholder-gray-600 transition-all duration-200"
+								placeholder="Ej. JUAN CARLOS"
+							/>
+						</div>
 					</div>
 
 					<div className="grid grid-cols-2 gap-5">
@@ -124,20 +307,22 @@ const GeneratorForm = () => {
 								placeholder="Ej. 12345678"
 							/>
 						</div>
-						<div className="group">
-							<label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider group-focus-within:text-violet-400 transition-colors">
-								Plazo (Horas)
-							</label>
-							<input
-								type="number"
-								name="plazo_horas"
-								value={formData.plazo_horas}
-								onChange={handleChange}
-								required
-								className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-white placeholder-gray-600 transition-all duration-200"
-								placeholder="Ej. 24, 48"
-							/>
-						</div>
+						{formData.templateId !== "3" && (
+							<div className="group">
+								<label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider group-focus-within:text-violet-400 transition-colors">
+									Plazo (Horas)
+								</label>
+								<input
+									type="number"
+									name="plazo_horas"
+									value={formData.plazo_horas}
+									onChange={handleChange}
+									required
+									className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-white placeholder-gray-600 transition-all duration-200"
+									placeholder="Ej. 24, 48"
+								/>
+							</div>
+						)}
 					</div>
 
 					<div className="group">
@@ -164,9 +349,10 @@ const GeneratorForm = () => {
 								S/
 							</span>
 							<input
-								type="number"
+								type="text"
+								inputMode="decimal"
 								name="monto_total"
-								value={formData.monto_total}
+								value={formatAmountInput(formData.monto_total)}
 								onChange={handleChange}
 								required
 								className="w-full pl-10 pr-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-white placeholder-gray-600 transition-all duration-200"
@@ -174,6 +360,53 @@ const GeneratorForm = () => {
 							/>
 						</div>
 					</div>
+
+					{formData.templateId === "3" && (
+						<div className="grid grid-cols-2 gap-5">
+							<div className="group">
+								<label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider group-focus-within:text-violet-400 transition-colors">
+									Interés a condonar (S/)
+								</label>
+								<div className="relative">
+									<span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
+										S/
+									</span>
+									<input
+										type="text"
+										inputMode="decimal"
+										name="interes"
+										value={formatAmountInput(
+											formData.interes,
+										)}
+										onChange={handleChange}
+										required={formData.templateId === "3"}
+										className="w-full pl-10 pr-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-white placeholder-gray-600 transition-all duration-200"
+										placeholder="0.00"
+									/>
+								</div>
+							</div>
+							<div className="group">
+								<label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider group-focus-within:text-violet-400 transition-colors">
+									Mora a condonar (S/)
+								</label>
+								<div className="relative">
+									<span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
+										S/
+									</span>
+									<input
+										type="text"
+										inputMode="decimal"
+										name="mora"
+										value={formatAmountInput(formData.mora)}
+										onChange={handleChange}
+										required={formData.templateId === "3"}
+										className="w-full pl-10 pr-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-white placeholder-gray-600 transition-all duration-200"
+										placeholder="0.00"
+									/>
+								</div>
+							</div>
+						</div>
+					)}
 				</div>
 
 				<button
@@ -182,7 +415,7 @@ const GeneratorForm = () => {
 					className={`w-full py-3.5 px-6 rounded-xl font-bold text-white shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 ${
 						loading
 							? "bg-gray-700 cursor-not-allowed opacity-70"
-							: "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 hover:shadow-violet-500/25 active:scale-[0.98]"
+							: "bg-linear-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 hover:shadow-violet-500/25 active:scale-[0.98]"
 					}`}
 				>
 					{loading ? (
@@ -224,7 +457,7 @@ const GeneratorForm = () => {
 					}`}
 				>
 					<span
-						className={`flex-shrink-0 w-2 h-2 rounded-full ${message.type === "error" ? "bg-red-400" : "bg-emerald-400"}`}
+						className={`shrink-0 w-2 h-2 rounded-full ${message.type === "error" ? "bg-red-400" : "bg-emerald-400"}`}
 					></span>
 					{message.text}
 				</div>

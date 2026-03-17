@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<style>
+			<%= inlineStyles %>
+			.text{
+				font-size: 10pt;
+			}
+		</style>
+	</head>
+	<body class="text">
+		<div class="flex-container">
+			<div class="text-right border border-red-500 w-fit p-1">
+				<span class="bold">Expediente:</span> 00458-2026
+			</div>
+		</div>
+
+		<div class="text-center bold underline mt-2 text-xs">
+			CARTA Nº 003-2026 / OPORTUNIDAD FINAL DE TRANSACCIÓN EXTRAJUDICIAL
+		</div>
+
+		<div class="mt-4">
+			<span class="bold">SOCIO(A):</span> <%= nombre %>
+		</div>
+
+		<div class="flex-between">
+			<div><span class="bold">DNI / RUC:</span> <%= dni %></div>
+			<div><span class="bold">DOMICILIO:</span> <%= direction %></div>
+		</div>
+
+		<div class="mt-1">
+			<span class="bold">DEUDA TOTAL DE LA OBLIGACIÓN:</span>
+			<span class="bold text-red">S/ <%= monto_total %></span>
+		</div>
+
+		<div class="bold mt-2">
+			CAMPAÑA DE SANEAMIENTO DE CRÉDITO EXTRAORDINARIO
+		</div>
+
+		<div class="text-justify mt-2">
+			Estimado(a) socio(a), su expediente ha sido seleccionado para
+			ingresar al
+			<span class="bold"
+				>Programa de Liquidación de Cartera Castigada</span
+			>. Debido al tiempo de morosidad transcurrido y con el fin de evitar
+			la fase de ejecución judicial de sus bienes, la Gerencia Legal ha
+			autorizado por única vez un beneficio de condonación agresiva de
+			intereses y moras acumuladas.
+		</div>
+
+		<div class="text-justify mt-2 bold">
+			LIQUIDACIÓN ESPECIAL PARA CIERRE DE CUENTA:
+		</div>
+		<ul>
+			<li>
+				<span class="bold">MONTO TOTAL ACUMULADO:</span>
+				S/ <%= monto_total %> (Capital + Intereses + Mora)
+			</li>
+			<li>
+				<span class="bold">DESCUENTO POR CAMPAÑA:</span>
+				<span class="text-red">- S/ <%= monto_condonado_total %></span> (Condonación 100% de intereses y
+				moras)
+			</li>
+			<li">
+				<span class="bold">MONTO ÚNICO PARA LIQUIDAR HOY:</span>
+				<span class="bold">S/ <%= monto_con_descuento %></span>
+			</li>
+		</ul>
+
+		<div class="text-justify mt-3 bold">
+			CONDICIONES DEL BENEFICIO (Vencimiento Improrrogable):
+		</div>
+
+		<ul class="ol">
+			<li class="list-decimal">
+				<span class="bold">EXONERACIÓN TOTAL:</span>
+				Se le otorga la condonación del 100% de intereses compensatorios,
+				moratorios y penalidades acumuladas por años de atraso. Solo paga el
+				capital.
+			</li>
+	
+			<li class="list-decimal">
+				<span class="bold">PLAZO LÍMITE:</span>
+				Esta oferta es válida únicamente hasta el día
+				<span class="bold"><%= fecha_limite %></span>.
+			</li>
+	
+			<li class="list-decimal">
+				<span class="bold">REHABILITACIÓN FINANCIERA:</span>
+				Al cancelar el monto indicado, la Cooperativa emitirá su Carta de No
+				Adeudo y tramitará el levantamiento del reporte negativo en las
+				Centrales de Riesgo (Infocorp/SBS).
+			</li>
+		</ul>
+
+
+		<div class="text-justify mt-2">
+			<span class="bold">ADVERTENCIA FINAL:</span>
+			De no acogerse a este beneficio en el plazo señalado, la oferta
+			quedará sin efecto legal. El expediente retornará a su estado
+			original más los costos judiciales detallados en la notificación
+			anterior, procediéndose de inmediato con el
+			<span class="bold">secuestro conservativo</span> de sus pertenencias
+			en su domicilio.
+		</div>
+
+		<div class="text-center bold mt-4">
+			"PROTEJA SU PATRIMONIO Y RECUPERE SU TRANQUILIDAD FINANCIERA CON UN
+			SOLO PAGO".
+		</div>
+
+		<div class="mt-4">Atentamente,</div>
+		<div class="mt-8 text-center font-bold">
+			Área legal - Recuperaciones
+		</div>
+	</body>
+</html>

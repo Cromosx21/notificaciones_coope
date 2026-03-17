@@ -17,7 +17,6 @@
 				font-weight: bold;
 				font-style: normal;
 			}
-
 			@page {
 				size: A4;
 				margin-top: 5.75cm;
@@ -78,7 +77,6 @@
 				padding-left: 2rem;
 			}
 			li {
-				margin-bottom: 0.5rem;
 				text-align: justify;
 			}
 			.font-bold {
@@ -98,9 +96,15 @@
 			.text-xs {
 				font-size: 12pt;
 			}
+			.list-decimal {
+				list-style-type: decimal;
+			}
+			.text {
+				font-size: 10pt;
+			}
 		</style>
 	</head>
-	<body>
+	<body class="text">
 		<div class="flex-container">
 			<div class="text-right border border-red-500 w-fit p-1">
 				<span class="bold">Expediente:</span> 00458-2026
@@ -108,77 +112,107 @@
 		</div>
 
 		<div class="text-center bold underline mt-2 text-xs">
-			CARTA Nº 001-2026 / AREA LEGAL - NOTIFICACIÓN DE ESTADO CRÍTICO
+			CARTA Nº 002-2026 / LIQUIDACIÓN DE COSTAS Y COSTOS
 		</div>
 
 		<div class="mt-4">
 			<span class="bold">SOCIO(A):</span> <%= nombre %>
 		</div>
 
-		<div class="flex-between mt-1">
+		<div class="flex-between">
 			<div><span class="bold">DNI / RUC:</span> <%= dni %></div>
 			<div><span class="bold">DOMICILIO:</span> <%= direction %></div>
 		</div>
 
-		<div class="mt-2">
+		<div class="mt-1">
 			<span class="bold">DEUDA TOTAL DE LA OBLIGACIÓN:</span>
 			<span class="bold text-red">S/ <%= monto_total %></span>
 		</div>
 
-		<div class="bold mt-4">
-			DETERMINACIÓN DE ACCIÓN LEGAL POR ABANDONO DE DEUDA
+		<div class="bold mt-2">
+			REQUERIMIENTO FINAL PREVIO A EJECUCIÓN FORZADA
 		</div>
 
 		<div class="text-justify mt-2">
-			La presente tiene por objeto comunicarle el
-			<span class="bold">ESTADO CRÍTICO</span> en el que se encuentra su
-			obligación financiera con la
-			<span class="bold">COOPAC NIÑO REY</span>. Tras haber agotado las
-			instancias administrativas de cobranza ordinaria sin respuesta de su
-			parte, su expediente ha sido derivado a esta instancia legal para el
-			inicio de las acciones de recuperación forzosa.
+			Ante el vencimiento del plazo otorgado y la persistencia de su
+			conducta de impago, le comunicamos que su expediente ha sido
+			<span class="bold">DICTAMINADO PARA EJECUCIÓN JUDICIAL</span>. A
+			partir de este momento, según lo establecido en el
+			<span class="bold">Código Procesal Civil</span>, usted asume la
+			responsabilidad económica de todos los gastos derivados del proceso
+			de recuperación.
 		</div>
 
-		<div class="text-justify mt-2">
-			<span class="bold">ADVERTENCIA DE ESTADO JUDICIAL:</span> Le
-			informamos que, de persistir su falta de contacto, nuestra
-			institución procederá con el ejercicio de sus facultades legales
-			según el <span class="bold">Código Procesal Civil</span>, lo que
-			incluye:
+		<div class="text-justify mt-2 bold">
+			DETALLE DE INCREMENTO DE DEUDA (PROYECCIÓN JUDICIAL):
 		</div>
 
-		<ol class="mt-2">
+		<ul>
 			<li>
-				<span class="bold">EJECUCIÓN DE TÍTULOS VALORES:</span> Inicio
-				del proceso judicial por el monto total de la deuda más
-				intereses devengados a la fecha.
+				<span class="bold"
+					>TASAS JUDICIALES (Aranceles Poder Judicial):</span
+				>
+				S/ 515.00 (aprox.)
 			</li>
 			<li>
-				<span class="bold">MEDIDAS DE EMBARGO (Art. 642 C.P.C.):</span>
-				Afectación de bienes muebles, inmuebles y retención de fondos en
-				sus cuentas bancarias dentro del sistema financiero nacional.
+				<span class="bold"
+					>HONORARIOS PROFESIONALES (Costo Legal):</span
+				>
+				S/ 1,200.00 (según cuantía).
 			</li>
 			<li>
-				<span class="bold">INCREMENTO POR COSTAS Y COSTOS:</span> Según
-				ley, el deudor deberá asumir los honorarios de abogados y tasas
-				judiciales, lo que elevará sustancialmente su deuda actual.
+				<span class="bold">COSTOS DE DILIGENCIA DE EMBARGO:</span>
+				S/ 600.00 (Gastos logísticos y de custodia).
 			</li>
-		</ol>
+
+			<li>
+				<span class="bold"
+					>TOTAL ESTIMADO PARA CANCELACIÓN EN VÍA JUDICIAL:</span
+				>
+				<span class="bold text-red">
+					S/ <%= monto_total_judicial %></span
+				>
+				(Deuda Total + Gastos Procesales)
+			</li>
+		</ul>
 
 		<div class="text-justify mt-2">
-			<span class="bold">SOLICITUD DE COMUNICACIÓN INMEDIATA:</span> Esta
-			área legal aún tiene la facultad de
-			<span class="bold">detener el proceso judicial</span> si existe una
-			manifestación de voluntad de pago inmediata. Se le otorga un plazo
-			de <span class="bold"><%= plazo_horas %> HORAS</span> para
-			comunicarse al <span class="bold"><%= telefono_contacto %></span>,
-			con nuestro gestor asignado y evitar que su expediente sea ingresado
-			al Poder Judicial de Ayacucho.
+			<span class="bold"
+				>BENEFICIO DE SUSPENSIÓN PROCESAL (ÚNICAS 24 HORAS):</span
+			>
+			Para evitar que estos montos se carguen definitivamente a su nombre
+			y se proceda con el
+			<span class="bold">Secuestro Conservativo de Bienes</span> en su
+			domicilio, se le otorga un último plazo de
+			<span class="bold">24 HORAS</span> para:
+		</div>
+
+		<ul class="mt-2">
+			<li>
+				<span class="bold">SUSCRIBIR TRANSACCIÓN EXTRAJUDICIAL:</span>
+				Acérquese a nuestra oficina en Ayacucho para firmar el acta de
+				compromiso y detener la demanda.
+			</li>
+			<li>
+				<span class="bold">VALIDAR PAGO INMEDIATO:</span> Contacte al
+				especialista legal al teléfono
+				<span class="bold"><%= telefono_contacto %></span>
+				para reportar su depósito.
+			</li>
+		</ul>
+
+		<div class="text-justify mt-2">
+			<span class="bold">ADVERTENCIA FINAL:</span> De ignorar esta
+			notificación, se dará por cerrada la etapa de negociación directa.
+			El próximo contacto será realizado por el
+			<span class="bold">Secretario Judicial</span> y la
+			<span class="bold">Fuerza Pública</span> para la ejecución de la
+			medida cautelar en su domicilio.
 		</div>
 
 		<div class="text-center bold mt-4">
-			EVITE EL PERJUICIO DE SU PATRIMONIO Y EL BLOQUEO DEFINITIVO EN
-			CENTRALES DE RIESGO.
+			"EL COSTO DE SU SILENCIO ES EL INCREMENTO DE SU DEUDA. DETENGA EL
+			PROCESO HOY."
 		</div>
 
 		<div class="mt-4">Atentamente,</div>
