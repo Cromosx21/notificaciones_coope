@@ -171,12 +171,33 @@ const GeneratorForm = () => {
 			const url = window.URL.createObjectURL(new Blob([response.data]));
 			const link = document.createElement("a");
 			link.href = url;
-			const filename =
-				`${formData.apellidos.toUpperCase()}_${formData.nombres.toUpperCase()}.pdf`.replace(
-					/\s+/g,
-					"_",
-				);
-			link.setAttribute("download", filename);
+			let filenameFromHeader;
+			const cd =
+				response.headers && response.headers["content-disposition"];
+			if (cd) {
+				const matchStar = /filename\*=UTF-8''([^;]+)/i.exec(cd);
+				const matchBasic = /filename=\"?([^\";]+)\"?/i.exec(cd);
+				if (matchStar && matchStar[1]) {
+					try {
+						filenameFromHeader = decodeURIComponent(matchStar[1]);
+					} catch (_e) {
+						void _e;
+					}
+				} else if (matchBasic && matchBasic[1]) {
+					filenameFromHeader = matchBasic[1];
+				}
+			}
+			if (!filenameFromHeader) {
+				const labels = {
+					1: "Carta N° 001",
+					2: "Carta N° 002",
+					3: "Carta N° 003",
+					4: "Carta N° 004",
+				};
+				const label = labels[formData.templateId] || "Carta N° 001";
+				filenameFromHeader = `${label} - ${formData.apellidos} ${formData.nombres}.pdf`;
+			}
+			link.setAttribute("download", filenameFromHeader);
 			document.body.appendChild(link);
 			link.click();
 			link.remove();

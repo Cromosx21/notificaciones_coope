@@ -244,12 +244,23 @@ app.post("/generate-pdf", async (req, res) => {
 
 		// 6. Enviar el PDF al cliente
 		res.setHeader("Content-Type", "application/pdf");
-		const safeName = String(data.nombre || "documento")
-			.toUpperCase()
-			.replace(/\s+/g, "_");
+		const cartaLabels = {
+			1: "Carta N° 001",
+			2: "Carta N° 002",
+			3: "Carta N° 003",
+			4: "Carta N° 004",
+		};
+		const cartaLabel = cartaLabels[templateId] || "Carta N° 001";
+		const humanName = String(data.nombre || "Documento");
+		const utf8Name = `${cartaLabel} - ${humanName}`;
+		const asciiName = utf8Name
+			.replace(/[<>:"/\\|?*]+/g, "-")
+			.replace(/[^\x20-\x7E]/g, "");
 		res.setHeader(
 			"Content-Disposition",
-			`attachment; filename=${safeName}.pdf`,
+			`attachment; filename="${asciiName}.pdf"; filename*=UTF-8''${encodeURIComponent(
+				utf8Name,
+			)}.pdf`,
 		);
 		res.send(Buffer.from(pdfBuffer));
 	} catch (error) {
