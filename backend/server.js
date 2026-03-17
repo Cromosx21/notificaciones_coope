@@ -16,13 +16,14 @@ app.use(express.json());
 // Paths
 const TEMPLATE_DIR = path.join(__dirname, "templates");
 const TEMPLATE_PATH = path.join(TEMPLATE_DIR, "template.ejs");
-const FONT_PATH = path.join(__dirname, "fonts", "cambria.ttc");
+const FONT_REGULAR_PATH = path.join(__dirname, "fonts", "cambria.ttc");
+const FONT_BOLD_PATH = path.join(__dirname, "fonts", "cambriab.ttf");
 
 // Helper to load font as base64
-const loadFontBase64 = () => {
+const loadFontBase64 = (fontPath) => {
 	try {
-		if (fs.existsSync(FONT_PATH)) {
-			const fontBuffer = fs.readFileSync(FONT_PATH);
+		if (fs.existsSync(fontPath)) {
+			const fontBuffer = fs.readFileSync(fontPath);
 			return fontBuffer.toString("base64");
 		}
 		return null;
@@ -38,18 +39,17 @@ app.post("/generate-pdf", async (req, res) => {
 
 	// 1. Validar datos
 	if (!data.nombre || !data.dni || !data.monto_total || !data.plazo_horas) {
-		return res
-			.status(400)
-			.json({
-				error: "Faltan datos requeridos (nombre, dni, monto_total, plazo_horas).",
-			});
+		return res.status(400).json({
+			error: "Faltan datos requeridos (nombre, dni, monto_total, plazo_horas).",
+		});
 	}
 
 	try {
 		console.log("Iniciando generación de PDF con Puppeteer...");
 
-		// Cargar fuente
-		const fontBase64 = loadFontBase64();
+		// Cargar fuentes
+		const fontRegularBase64 = loadFontBase64(FONT_REGULAR_PATH);
+		const fontBoldBase64 = loadFontBase64(FONT_BOLD_PATH);
 
 		// 2. Renderizar HTML con EJS
 		const html = await ejs.renderFile(TEMPLATE_PATH, {
@@ -58,7 +58,8 @@ app.post("/generate-pdf", async (req, res) => {
 			direction: data.direction || "",
 			monto_total: data.monto_total,
 			plazo_horas: data.plazo_horas,
-			fontBase64: fontBase64, // Pasar fuente a la plantilla
+			fontRegularBase64: fontRegularBase64,
+			fontBoldBase64: fontBoldBase64,
 		});
 
 		// 3. Lanzar Puppeteer (Configuración compatible con Vercel)
