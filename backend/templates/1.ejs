@@ -3,7 +3,104 @@
 	<head>
 		<meta charset="UTF-8" />
 		<style>
-			<%= inlineStyles %>
+			@font-face {
+				font-family: "Cambria";
+				src: url("data:font/truetype;charset=utf-8;base64,<%= fontRegularBase64 %>")
+					format("truetype");
+				font-weight: normal;
+				font-style: normal;
+			}
+			@font-face {
+				font-family: "Cambria";
+				src: url("data:font/truetype;charset=utf-8;base64,<%= fontBoldBase64 %>")
+					format("truetype");
+				font-weight: bold;
+				font-style: normal;
+			}
+
+			@page {
+				size: A4;
+				margin-top: 5.75cm;
+				margin-bottom: 2.54cm;
+				margin-left: 2.54cm;
+				margin-right: 2.54cm;
+			}
+			body {
+				font-family: "Cambria", "Times New Roman", serif;
+				font-size: 11pt;
+				line-height: 1.5;
+				color: #000;
+			}
+			.text-right {
+				text-align: right;
+			}
+			.text-center {
+				text-align: center;
+			}
+			.text-justify {
+				text-align: justify;
+			}
+			.bold {
+				font-weight: bold;
+			}
+			.underline {
+				text-decoration: underline;
+			}
+			.text-red {
+				color: red;
+			}
+			.mt-1 {
+				margin-top: 0.25rem;
+			}
+			.mt-2 {
+				margin-top: 0.5rem;
+			}
+			.mt-3 {
+				margin-top: 0.75rem;
+			}
+			.mt-4 {
+				margin-top: 1rem;
+			}
+			.mt-8 {
+				margin-top: 2rem;
+			}
+			.flex-between {
+				display: flex;
+				justify-content: space-between;
+			}
+			.border {
+				border: 1px solid #000;
+			}
+			.border-red-500 {
+				border-color: red;
+			}
+			ol {
+				padding-left: 2rem;
+			}
+			li {
+				/* margin-bottom: 0.5rem; */
+				text-align: justify;
+			}
+			.font-bold {
+				font-weight: bold;
+			}
+			.w-fit {
+				width: fit-content;
+			}
+			.flex-container {
+				width: 100%;
+				display: flex;
+				justify-content: flex-end;
+			}
+			.p-1 {
+				padding: 0.25rem;
+			}
+			.text-xs {
+				font-size: 12pt;
+			}
+			.list-decimal {
+				list-style-type: decimal;
+			}
 		</style>
 	</head>
 	<body>
