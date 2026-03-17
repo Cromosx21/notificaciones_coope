@@ -26,7 +26,7 @@ const GeneratorForm = () => {
 
 		try {
 			const response = await axios.post(
-				"https://notiback-hwh1y47c1-cromosx21s-projects.vercel.app/generate-pdf",
+				"https://notiback.vercel.app/generate-pdf",
 				formData,
 				{
 					responseType: "blob",
