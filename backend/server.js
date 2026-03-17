@@ -14,10 +14,23 @@ app.use(cors());
 app.use(express.json());
 
 // Paths
-// En Vercel, el sistema de archivos es de solo lectura excepto /tmp
-// Pero no necesitamos escribir archivos, usamos buffers
 const TEMPLATE_DIR = path.join(__dirname, "templates");
 const TEMPLATE_PATH = path.join(TEMPLATE_DIR, "template.ejs");
+const FONT_PATH = path.join(__dirname, "fonts", "cambria.ttc");
+
+// Helper to load font as base64
+const loadFontBase64 = () => {
+	try {
+		if (fs.existsSync(FONT_PATH)) {
+			const fontBuffer = fs.readFileSync(FONT_PATH);
+			return fontBuffer.toString("base64");
+		}
+		return null;
+	} catch (e) {
+		console.error("Error loading font:", e);
+		return null;
+	}
+};
 
 // Endpoint to generate PDF
 app.post("/generate-pdf", async (req, res) => {
@@ -35,6 +48,9 @@ app.post("/generate-pdf", async (req, res) => {
 	try {
 		console.log("Iniciando generación de PDF con Puppeteer...");
 
+		// Cargar fuente
+		const fontBase64 = loadFontBase64();
+
 		// 2. Renderizar HTML con EJS
 		const html = await ejs.renderFile(TEMPLATE_PATH, {
 			nombre: data.nombre,
@@ -42,6 +58,7 @@ app.post("/generate-pdf", async (req, res) => {
 			direction: data.direction || "",
 			monto_total: data.monto_total,
 			plazo_horas: data.plazo_horas,
+			fontBase64: fontBase64, // Pasar fuente a la plantilla
 		});
 
 		// 3. Lanzar Puppeteer (Configuración compatible con Vercel)
