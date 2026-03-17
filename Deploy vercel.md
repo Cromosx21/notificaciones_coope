@@ -7,19 +7,16 @@ Este proyecto está configurado para desplegarse fácilmente en Vercel. Sigue es
 *   Tener una cuenta en [Vercel](https://vercel.com/).
 *   Tener el CLI de Vercel instalado (`npm i -g vercel`) o hacerlo desde la web conectando tu repositorio de GitHub.
 
-## 1. Solución de Conflictos de Dependencias (IMPORTANTE)
+## 1. Solución de Conflictos de Dependencias (ACTUALIZADO)
 
-Debido a conflictos entre `vite` v8 y `@tailwindcss/vite`, es necesario configurar Vercel para que use `--legacy-peer-deps`.
+Para evitar errores de despliegue, hemos limpiado la configuración:
+1.  Se eliminó `frontend/vercel.json` para usar la configuración automática de Vercel (Zero Config).
+2.  Se alinearon las versiones de `vite`, `@vitejs/plugin-react` y `@tailwindcss/vite` para ser compatibles.
 
-### Opción A: Configurar en el Dashboard de Vercel (Recomendado)
-1.  Ve a tu proyecto en Vercel.
-2.  Entra a **Settings** > **General**.
-3.  En la sección **Build & Development Settings**, busca **Install Command**.
-4.  Activa el switch de **Override** y escribe:
-    ```bash
-    npm install --legacy-peer-deps
-    ```
-5.  Guarda los cambios y vuelve a desplegar.
+**Si aún tienes problemas:**
+1.  Ve a tu proyecto en Vercel -> **Settings** -> **Git**.
+2.  Asegúrate de que no haya configuraciones antiguas de "Ignored Build Step".
+3.  Si es necesario, fuerza una reinstalación limpia activando "Redeploy" sin caché.
 
 ## 2. Configuración del Proyecto
 
