@@ -54,6 +54,122 @@ const formatMonto = (value) => {
 	}).format(value);
 };
 
+const toWordsEs = (n) => {
+	const num = Math.trunc(Number(n) || 0);
+	if (num === 0) return "CERO";
+	if (num < 0) return `MENOS ${toWordsEs(-num)}`;
+
+	const unidades = [
+		"",
+		"UNO",
+		"DOS",
+		"TRES",
+		"CUATRO",
+		"CINCO",
+		"SEIS",
+		"SIETE",
+		"OCHO",
+		"NUEVE",
+	];
+	const especiales = {
+		10: "DIEZ",
+		11: "ONCE",
+		12: "DOCE",
+		13: "TRECE",
+		14: "CATORCE",
+		15: "QUINCE",
+		16: "DIECISÉIS",
+		17: "DIECISIETE",
+		18: "DIECIOCHO",
+		19: "DIECINUEVE",
+		20: "VEINTE",
+		21: "VEINTIUNO",
+		22: "VEINTIDÓS",
+		23: "VEINTITRÉS",
+		24: "VEINTICUATRO",
+		25: "VEINTICINCO",
+		26: "VEINTISÉIS",
+		27: "VEINTISIETE",
+		28: "VEINTIOCHO",
+		29: "VEINTINUEVE",
+	};
+	const decenas = [
+		"",
+		"",
+		"VEINTE",
+		"TREINTA",
+		"CUARENTA",
+		"CINCUENTA",
+		"SESENTA",
+		"SETENTA",
+		"OCHENTA",
+		"NOVENTA",
+	];
+	const centenas = [
+		"",
+		"CIENTO",
+		"DOSCIENTOS",
+		"TRESCIENTOS",
+		"CUATROCIENTOS",
+		"QUINIENTOS",
+		"SEISCIENTOS",
+		"SETECIENTOS",
+		"OCHOCIENTOS",
+		"NOVECIENTOS",
+	];
+
+	const twoDigits = (x) => {
+		if (x < 10) return unidades[x];
+		if (especiales[x]) return especiales[x];
+		const tens = Math.trunc(x / 10);
+		const unit = x % 10;
+		if (tens === 2)
+			return `VEINTI${unidades[unit].toLowerCase()}`.toUpperCase();
+		return unit ? `${decenas[tens]} Y ${unidades[unit]}` : decenas[tens];
+	};
+
+	const threeDigits = (x) => {
+		if (x === 0) return "";
+		if (x === 100) return "CIEN";
+		const hund = Math.trunc(x / 100);
+		const rest = x % 100;
+		const hundText = hund ? centenas[hund] : "";
+		const restText = rest ? twoDigits(rest) : "";
+		return [hundText, restText].filter(Boolean).join(" ").trim();
+	};
+
+	const section = (x) => {
+		const thousands = Math.trunc(x / 1000);
+		const rest = x % 1000;
+		const parts = [];
+		if (thousands) {
+			if (thousands === 1) parts.push("MIL");
+			else parts.push(`${threeDigits(thousands)} MIL`);
+		}
+		if (rest) parts.push(threeDigits(rest));
+		return parts.join(" ").trim();
+	};
+
+	const millions = Math.trunc(num / 1_000_000);
+	const rest = num % 1_000_000;
+	const parts = [];
+	if (millions) {
+		if (millions === 1) parts.push("UN MILLÓN");
+		else parts.push(`${section(millions)} MILLONES`);
+	}
+	if (rest) parts.push(section(rest));
+	return parts.join(" ").trim();
+};
+
+const montoATextoSoles = (value) => {
+	const totalCents = Math.round((Number(value) || 0) * 100);
+	const soles = Math.trunc(totalCents / 100);
+	const cents = Math.abs(totalCents % 100);
+	const moneda = soles === 1 ? "SOL" : "SOLES";
+	const texto = toWordsEs(soles === 0 ? 0 : soles);
+	return `${texto} CON ${String(cents).padStart(2, "0")}/100 ${moneda}`;
+};
+
 // Helper to load font as base64
 const loadFontBase64 = (fontPath) => {
 	try {
@@ -158,35 +274,73 @@ const buildCronograma = (firstDateValue, cuotasCount, totalValue) => {
 	return rows;
 };
 
-const buildHeaderTemplate = ({ logoBase64, codigo }) => {
+const buildHeaderTemplate = ({
+	logoBase64,
+	codigo,
+	docType,
+	fontRegularBase64,
+	fontBoldBase64,
+}) => {
 	const logoHtml = logoBase64
-		? `<img src="data:image/png;base64,${logoBase64}" style="height:42px; margin-right:10px;" />`
+		? `<img src="data:image/png;base64,${logoBase64}" style="height:56px; margin-right:10px;" />`
 		: "";
 	const safeCodigo = String(codigo || "")
 		.replace(/</g, "&lt;")
 		.replace(/>/g, "&gt;");
+	const codigoLabel =
+		String(docType || "").toLowerCase() === "compromiso"
+			? `ATE-RD Nº ${safeCodigo} /G.R.`
+			: `IGR-Nº ${safeCodigo} /G.R.`;
+	const fontStyle = `
+<style>
+@font-face {
+	font-family: "CambriaRegularEmbed";
+	src: url("data:font/collection;charset=utf-8;base64,${fontRegularBase64 || ""}") format("truetype-collection");
+}
+@font-face {
+	font-family: "CambriaBoldEmbed";
+	src: url("data:font/ttf;charset=utf-8;base64,${fontBoldBase64 || ""}") format("truetype");
+}
+</style>
+`;
 	return `
-<div style="width:100%; font-family: Cambria, 'Times New Roman', serif; font-size:9.5pt; color:#000; padding:0 2.54cm; box-sizing:border-box;">
+${fontStyle}
+<div style="width:100%; font-family: CambriaRegularEmbed, Cambria, 'Times New Roman', serif; font-size:9.5pt; color:#000; padding:0 2.54cm; box-sizing:border-box; margin-top: 0.5cm;">
 	<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; width:100%;">
 		<div style="display:flex; align-items:flex-start; min-width:160px;">
 			${logoHtml}
 		</div>
-		<div style="flex:1; text-align:center; line-height:1.1; margin-top:2px;">
-			<div style="font-weight:700;">UNIDAD DE RECUPERACIONES JUDICIALES Y ASUNTOS LEGALES</div>
-		</div>
-		<div style="min-width:160px; text-align:right;">
-			<div style="border:1px solid #000; display:inline-block; padding:2px 6px; margin-top:2px;">${safeCodigo}</div>
+		<div style="min-width:160px; width: fit-content; text-align:right; display:flex; flex-direction:column; align-items:flex-end;">
+			<div>Página <span class="pageNumber"></span> de <span class="totalPages"></span></div>
+			<div style="flex:1; text-align:right; line-height:1.1; margin-top:2px;">
+				<div style="font-family: CambriaBoldEmbed, Cambria, 'Times New Roman', serif; font-size:9pt;">UNIDAD DE RECUPERACIONES JUDICIALES Y ASUNTOS LEGALES</div>
+			</div>
+			<div style="border:1px solid #000; display:inline-block; padding:2px 6px; margin-top:2px;">${codigoLabel}</div>
 		</div>
 	</div>
 </div>
 `;
 };
 
-const buildFooterTemplate = () => {
+const buildFooterTemplate = ({ fontRegularBase64, fontBoldBase64 }) => {
+	const fontStyle = `
+<style>
+@font-face {
+	font-family: "CambriaRegularEmbed";
+	src: url("data:font/collection;charset=utf-8;base64,${fontRegularBase64 || ""}") format("truetype-collection");
+}
+@font-face {
+	font-family: "CambriaBoldEmbed";
+	src: url("data:font/ttf;charset=utf-8;base64,${fontBoldBase64 || ""}") format("truetype");
+}
+</style>
+`;
 	return `
-<div style="width:100%; font-family: Cambria, 'Times New Roman', serif; font-size:9.5pt; color:#000; padding:0 2.54cm; box-sizing:border-box;">
-	<div style="width:100%; text-align:right;">
-		Página <span class="pageNumber"></span> de <span class="totalPages"></span>
+${fontStyle}
+<div style="width:100%; font-family: CambriaRegularEmbed, Cambria, 'Times New Roman', serif; font-size:9.5pt; color:#000; padding:0 2.54cm; box-sizing:border-box;">
+	<div style="width:100%; text-align:center;">
+	<strong>COOPAC NIÑO REY </strong> - Ayacucho, Perú - Sector Educacion Mz C lote 7-Pasaje los Amautas </br>
+Ayacucho, Peru - Telf: 979 585 886
 	</div>
 </div>
 `;
@@ -391,8 +545,8 @@ app.post("/generate-document", async (req, res) => {
 		});
 	}
 
-	const fontRegularBase64 = loadFontBase64(FONT_REGULAR_PATH);
-	const fontBoldBase64 = loadFontBase64(FONT_BOLD_PATH);
+	const fontRegularBase64 = loadFontBase64(FONT_REGULAR_PATH) || "";
+	const fontBoldBase64 = loadFontBase64(FONT_BOLD_PATH) || "";
 	const logoBase64 = loadLogoBase64();
 
 	const nombre = String(data.nombre || "").trim();
@@ -452,11 +606,12 @@ app.post("/generate-document", async (req, res) => {
 		const montoCondonado = Math.max(0, deudaTotal - montoPactado);
 
 		templatePath = path.join(TYPES_DIR, "compromiso.ejs");
+		const codigoBase = String(data.codigo || "").trim() || "001-2026";
 		templateVars = {
 			fontRegularBase64,
 			fontBoldBase64,
 			logoBase64,
-			codigo: String(data.codigo || "ATE-RD N° 001-2026/G.R."),
+			codigo: codigoBase,
 			nombre,
 			dni,
 			direction,
@@ -547,12 +702,22 @@ app.post("/generate-document", async (req, res) => {
 		);
 
 		const numeroInforme = String(data.numero_informe || "007").trim();
+		const codigoBase =
+			String(data.codigo || "").trim() || `${numeroInforme}-2026`;
 		templatePath = path.join(TYPES_DIR, "informe.ejs");
+		const diasAtrasoRaw = String(data.dias_atraso ?? "").trim();
+		const diasAtraso = diasAtrasoRaw
+			? diasAtrasoRaw.replace(/[^\d]/g, "") || "0"
+			: "0";
+		const cuotaMensual =
+			cuotas > 0
+				? formatMonto(saldoFraccionado / cuotas)
+				: formatMonto(0);
 		templateVars = {
 			fontRegularBase64,
 			fontBoldBase64,
 			logoBase64,
-			codigo: String(data.codigo || `IGR-N° ${numeroInforme}-2026/G.R.`),
+			codigo: codigoBase,
 			numero_informe: numeroInforme,
 			nombre,
 			dni,
@@ -568,7 +733,8 @@ app.post("/generate-document", async (req, res) => {
 					`Solicitud de Condonación de Mora - Socio ${nombre}`,
 			),
 			deuda_total: formatMonto(deudaTotal),
-			dias_atraso: String(data.dias_atraso || "+0"),
+			deuda_total_texto: montoATextoSoles(deudaTotal),
+			dias_atraso: diasAtraso,
 			estado_deuda: String(data.estado_deuda || "Cartera Castigada"),
 			fecha_credito_larga: formatFechaLarga(
 				data.fecha_credito || fechaEmision,
@@ -578,14 +744,23 @@ app.post("/generate-document", async (req, res) => {
 			interes_moratorio: formatMonto(interesMora),
 			otros_cargos: formatMonto(otrosCargos),
 			beneficio_condonado: formatMonto(montoCondonado),
+			interes_condonado: formatMonto(condonadoInteresValue),
+			mora_condonada: formatMonto(condonadoMoraValue),
 			monto_pactado: formatMonto(montoPactado),
 			cuota_inicial: formatMonto(cuotaInicial),
 			saldo_fraccionado: formatMonto(saldoFraccionado),
+			cuota_mensual: cuotaMensual,
 			numero_cuotas: String(cuotas).padStart(2, "0"),
 			cronograma,
 			total_cronograma: formatMonto(saldoFraccionado),
 			fecha_reprogramacion_larga: formatFechaLarga(
 				data.fecha_reprogramacion || fechaEmision,
+			),
+			acta_transaccion: String(
+				data.acta_transaccion || "000-2026",
+			).trim(),
+			fecha_acta_transaccion: formatFechaLarga(
+				data.fecha_acta_transaccion || fechaEmision,
 			),
 		};
 		filenameUtf8 = `Informe de Gestión - ${nombre}`;
@@ -620,8 +795,14 @@ app.post("/generate-document", async (req, res) => {
 	const headerTemplate = buildHeaderTemplate({
 		logoBase64,
 		codigo: templateVars.codigo,
+		docType,
+		fontRegularBase64,
+		fontBoldBase64,
 	});
-	const footerTemplate = buildFooterTemplate();
+	const footerTemplate = buildFooterTemplate({
+		fontRegularBase64,
+		fontBoldBase64,
+	});
 
 	let pdfBuffer;
 	try {

@@ -4,15 +4,17 @@
 		<meta charset="UTF-8" />
 		<style>
 			@font-face {
-				font-family: "CambriaRegular";
-				src: url("data:font/collection;charset=utf-8;base64,<%= fontRegularBase64 %>")
-					format("truetype-collection");
+				font-family: "Cambria";
+				src: url("data:font/truetype;charset=utf-8;base64,<%= fontRegularBase64 %>")
+					format("truetype");
+				font-weight: normal;
 				font-style: normal;
 			}
 			@font-face {
-				font-family: "CambriaBold";
-				src: url("data:font/ttf;charset=utf-8;base64,<%= fontBoldBase64 %>")
+				font-family: "Cambria";
+				src: url("data:font/truetype;charset=utf-8;base64,<%= fontBoldBase64 %>")
 					format("truetype");
+				font-weight: bold;
 				font-style: normal;
 			}
 			@page {
@@ -23,16 +25,14 @@
 				margin-right: 2.54cm;
 			}
 			body {
-				font-family: "CambriaRegular", "Cambria", "Times New Roman", serif;
+				font-family: "Cambria", "Times New Roman", serif;
 				font-size: 12pt;
 				line-height: 1.5;
 				color: #000;
 				margin: 0;
 			}
 			.bold {
-				font-family: "CambriaBold", "CambriaRegular", "Cambria", "Times New Roman",
-					serif;
-				font-weight: normal;
+				font-weight: bold;
 			}
 			.underline {
 				text-decoration: underline;
@@ -54,6 +54,9 @@
 			}
 			.mt-4 {
 				margin-top: 1rem;
+			}
+			.mt-16 {
+				margin-top: 4rem;
 			}
 			.header {
 				display: flex;
@@ -128,7 +131,7 @@
 			.signatures {
 				display: flex;
 				justify-content: space-between;
-				margin-top: 6rem;
+				margin-top: 2.2rem;
 				gap: 2rem;
 			}
 			.sig {
@@ -209,65 +212,68 @@
 			</ol>
 		</div>
 
-		<table class="table">
-			<thead>
-				<tr>
-					<th>CUOTA</th>
-					<th>FECHA DE VENCIMIENTO</th>
-					<th>MONTO A PAGAR</th>
-				</tr>
-			</thead>
-			<tbody>
-				<% cronograma.forEach((row) => { %>
-				<tr>
-					<td><%= row.cuota %></td>
-					<td><%= row.fecha_vencimiento %></td>
-					<td>S/ <%= row.monto %></td>
-				</tr>
-				<% }) %>
-			</tbody>
-			<tfoot>
-				<tr>
-					<td colspan="2" class="bold text-center">TOTAL</td>
-					<td class="bold">S/ <%= total_cronograma %></td>
-				</tr>
-			</tfoot>
-		</table>
+		<div class="page">
 
-		<div class="bold mt-4">CUARTA: CLÁUSULA RESOLUTORIA POR INCUMPLIMIENTO</div>
-		<div class="text-justify mt-2">
-			En caso de que <span class="bold">EL DEUDOR</span> incumpla con el pago de una (01) sola cuota en la fecha prevista,
-			el beneficio de condonación quedará automáticamente <span class="bold">SIN EFECTO</span>. En tal escenario:
-		</div>
-		<ol>
-			<li class="text-justify">
-				La deuda retornará a su estado original de S/ <span class="bold"><%= deuda_total %></span>, descontando únicamente los
-				pagos parciales realizados.
-			</li>
-			<li class="text-justify">
-				<span class="bold">LA COOPERATIVA</span> procederá de inmediato con el cobro judicial, solicitando el embargo de bienes
-				y cuentas por el monto total remanente, más costas, costos y penalidades de ley.
-			</li>
-		</ol>
+			<table class="table">
+				<thead>
+					<tr>
+						<th>CUOTA</th>
+						<th>FECHA DE VENCIMIENTO</th>
+						<th>MONTO A PAGAR</th>
+					</tr>
+				</thead>
+				<tbody>
+					<% cronograma.forEach((row) => { %>
+					<tr>
+						<td><%= row.cuota %></td>
+						<td><%= row.fecha_vencimiento %></td>
+						<td>S/ <%= row.monto %></td>
+					</tr>
+					<% }) %>
+				</tbody>
+				<tfoot>
+					<tr>
+						<td colspan="2" class="bold text-center">TOTAL</td>
+						<td class="bold">S/ <%= total_cronograma %></td>
+					</tr>
+				</tfoot>
+			</table>
 
-		<div class="bold mt-4">QUINTA: FORMA DE PAGO Y CONFORMIDAD</div>
-		<div class="text-justify mt-2">
-			Todo depósito se realizará en <span class="bold">CUENTA CUSTODIA</span> de la institución. Las partes firman el
-			presente documento en señal de absoluta conformidad, ratificando su contenido y firmas.
-		</div>
-
-		<div class="mt-4">
-			En la ciudad de Ayacucho, a los <span class="bold"><%= fecha_emision_larga %></span>.
-		</div>
-
-		<div class="signatures mt-16">
-			<div class="sig">
-				<div class="sig-line"></div>
-				<div class="bold">LA COOPERATIVA</div>
+			<div class="bold mt-4">CUARTA: CLÁUSULA RESOLUTORIA POR INCUMPLIMIENTO</div>
+			<div class="text-justify mt-2">
+				En caso de que EL DEUDOR incumpla con el pago de una (01) sola cuota en la fecha prevista,
+				el beneficio de condonación quedará automáticamente <span class="bold">SIN EFECTO</span>. En tal escenario:
 			</div>
-			<div class="sig">
-				<div class="sig-line"></div>
-				<div class="bold">EL DEUDOR</div>
+			<ol>
+				<li class="text-justify">
+					La deuda retornará a su estado original de S/ <span class="bold"><%= deuda_total %></span>, descontando únicamente los
+					pagos parciales realizados.
+				</li>
+				<li class="text-justify">
+					LA COOPERATIVA procederá de inmediato con el cobro judicial, solicitando el embargo de bienes
+					y cuentas por el monto total remanente, más costas, costos y penalidades de ley.
+				</li>
+			</ol>
+
+			<div class="bold mt-4">QUINTA: FORMA DE PAGO Y CONFORMIDAD</div>
+			<div class="text-justify mt-2">
+				Todo depósito se realizará en <span class="bold">CUENTA CUSTODIA</span> de la institución. Las partes firman el
+				presente documento en señal de absoluta conformidad, ratificando su contenido y firmas.
+			</div>
+
+			<div class="mt-4">
+				En la ciudad de Ayacucho, a los <span class="bold"><%= fecha_emision_larga %></span>.
+			</div>
+
+			<div class="signatures mt-16">
+				<div class="sig">
+					<div class="sig-line"></div>
+					<div class="bold">LA COOPERATIVA</div>
+				</div>
+				<div class="sig">
+					<div class="sig-line"></div>
+					<div class="bold">EL DEUDOR</div>
+				</div>
 			</div>
 		</div>
 	</body>

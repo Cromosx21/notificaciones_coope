@@ -55,6 +55,8 @@ const DocumentationForm = () => {
 		condonar_interes_moratorio_monto: "",
 		condonar_otros_cargos_monto: "",
 		fecha_reprogramacion: todayIso,
+		acta_transaccion: "",
+		fecha_acta_transaccion: todayIso,
 	};
 
 	const [formData, setFormData] = useState(initialFormData);
@@ -383,6 +385,14 @@ const DocumentationForm = () => {
 					formData.docType === "informe"
 						? formData.fecha_reprogramacion
 						: undefined,
+				acta_transaccion:
+					formData.docType === "informe"
+						? formData.acta_transaccion
+						: undefined,
+				fecha_acta_transaccion:
+					formData.docType === "informe"
+						? formData.fecha_acta_transaccion
+						: undefined,
 			};
 
 			let response;
@@ -513,8 +523,8 @@ const DocumentationForm = () => {
 								className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-white placeholder-gray-600 transition-all duration-200"
 								placeholder={
 									formData.docType === "compromiso"
-										? "ATE-RD N° 001-2026/G.R."
-										: "IGR-N° 007-2026/G.R."
+										? "001-2026"
+										: "007-2026"
 								}
 							/>
 						</div>
@@ -529,7 +539,7 @@ const DocumentationForm = () => {
 									value={formData.numero_informe}
 									onChange={handleChange}
 									className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-white placeholder-gray-600 transition-all duration-200"
-									placeholder="007"
+									placeholder="001"
 								/>
 							</div>
 						) : (
@@ -634,7 +644,7 @@ const DocumentationForm = () => {
 									value={formData.dias_atraso}
 									onChange={handleChange}
 									className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-white placeholder-gray-600 transition-all duration-200"
-									placeholder="+200 días"
+									placeholder="1000"
 								/>
 							</div>
 						) : (
@@ -753,6 +763,34 @@ const DocumentationForm = () => {
 									onChange={handleChange}
 									className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-white placeholder-gray-600 transition-all duration-200"
 									placeholder="Solicitud de Condonación de Mora"
+								/>
+							</div>
+						</div>
+
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+							<div className="group">
+								<label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider group-focus-within:text-violet-400 transition-colors">
+									Acta transacción (N°)
+								</label>
+								<input
+									type="text"
+									name="acta_transaccion"
+									value={formData.acta_transaccion}
+									onChange={handleChange}
+									className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-white placeholder-gray-600 transition-all duration-200"
+									placeholder="N° 000-2026"
+								/>
+							</div>
+							<div className="group">
+								<label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider group-focus-within:text-violet-400 transition-colors">
+									Fecha acta transacción
+								</label>
+								<input
+									type="date"
+									name="fecha_acta_transaccion"
+									value={formData.fecha_acta_transaccion}
+									onChange={handleChange}
+									className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-white transition-all duration-200"
 								/>
 							</div>
 						</div>
