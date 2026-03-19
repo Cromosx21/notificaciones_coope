@@ -3,6 +3,7 @@ const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
 const ejs = require("ejs");
+const PizZip = require("pizzip");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -65,6 +66,130 @@ const loadFontBase64 = (fontPath) => {
 		console.error("Error loading font:", e);
 		return null;
 	}
+};
+
+const launchBrowser = async () => {
+	if (process.env.VERCEL) {
+		const puppeteerCore = require("puppeteer-core");
+		const chromium = require("@sparticuz/chromium");
+		return puppeteerCore.launch({
+			args: chromium.args,
+			defaultViewport: chromium.defaultViewport,
+			executablePath: await chromium.executablePath(),
+			headless: chromium.headless,
+		});
+	}
+
+	const puppeteerLocal = require("puppeteer");
+	return puppeteerLocal.launch({
+		headless: "new",
+	});
+};
+
+const TYPES_DIR = path.join(TEMPLATE_DIR, "types");
+const TYPES_DOCX_COMPROMISO_PATH = path.join(
+	TYPES_DIR,
+	"COMPROMISO DE PAGO.docx",
+);
+const TYPES_DOCX_INFORME_PATH = path.join(
+	TYPES_DIR,
+	"INFORME DE GESTIÓN DE RECUPERACIONES.docx",
+);
+
+let cachedLogoBase64;
+const loadLogoBase64 = () => {
+	if (cachedLogoBase64 !== undefined) return cachedLogoBase64;
+	try {
+		const docxPath = fs.existsSync(TYPES_DOCX_COMPROMISO_PATH)
+			? TYPES_DOCX_COMPROMISO_PATH
+			: TYPES_DOCX_INFORME_PATH;
+		if (!fs.existsSync(docxPath)) {
+			cachedLogoBase64 = null;
+			return cachedLogoBase64;
+		}
+		const zip = new PizZip(fs.readFileSync(docxPath));
+		const img = zip.file("word/media/image1.png");
+		if (!img) {
+			cachedLogoBase64 = null;
+			return cachedLogoBase64;
+		}
+		cachedLogoBase64 = img.asNodeBuffer().toString("base64");
+		return cachedLogoBase64;
+	} catch (e) {
+		console.error("error_load_logo", e);
+		cachedLogoBase64 = null;
+		return cachedLogoBase64;
+	}
+};
+
+const formatFechaLarga = (value) => {
+	const d = value instanceof Date ? value : new Date(value);
+	if (!Number.isFinite(d.getTime())) return "";
+	return d.toLocaleDateString("es-PE", {
+		day: "2-digit",
+		month: "long",
+		year: "numeric",
+	});
+};
+
+const buildCronograma = (firstDateValue, cuotasCount, totalValue) => {
+	const cuotas = Math.max(0, Math.trunc(Number(cuotasCount) || 0));
+	if (!cuotas) return [];
+	const firstDate = new Date(firstDateValue);
+	if (!Number.isFinite(firstDate.getTime())) return [];
+
+	const totalCents = Math.round((Number(totalValue) || 0) * 100);
+	const perCents = Math.trunc(totalCents / cuotas);
+
+	const rows = [];
+	for (let idx = 0; idx < cuotas; idx += 1) {
+		const date = new Date(firstDate.getTime());
+		date.setMonth(firstDate.getMonth() + idx);
+		const cents =
+			idx === cuotas - 1
+				? totalCents - perCents * (cuotas - 1)
+				: perCents;
+		rows.push({
+			cuota: String(idx + 1).padStart(2, "0"),
+			fecha_vencimiento: formatFechaLarga(date),
+			monto: formatMonto(cents / 100),
+		});
+	}
+	return rows;
+};
+
+const buildHeaderTemplate = ({ logoBase64, codigo }) => {
+	const logoHtml = logoBase64
+		? `<img src="data:image/png;base64,${logoBase64}" style="height:42px; margin-right:10px;" />`
+		: "";
+	const safeCodigo = String(codigo || "")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;");
+	return `
+<div style="width:100%; font-family: Cambria, 'Times New Roman', serif; font-size:9.5pt; color:#000; padding:0 2.54cm; box-sizing:border-box;">
+	<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; width:100%;">
+		<div style="display:flex; align-items:flex-start; min-width:160px;">
+			${logoHtml}
+		</div>
+		<div style="flex:1; text-align:center; line-height:1.1; margin-top:2px;">
+			<div style="font-weight:700;">UNIDAD DE RECUPERACIONES JUDICIALES Y ASUNTOS LEGALES</div>
+		</div>
+		<div style="min-width:160px; text-align:right;">
+			<div style="border:1px solid #000; display:inline-block; padding:2px 6px; margin-top:2px;">${safeCodigo}</div>
+		</div>
+	</div>
+</div>
+`;
+};
+
+const buildFooterTemplate = () => {
+	return `
+<div style="width:100%; font-family: Cambria, 'Times New Roman', serif; font-size:9.5pt; color:#000; padding:0 2.54cm; box-sizing:border-box;">
+	<div style="width:100%; text-align:right;">
+		Página <span class="pageNumber"></span> de <span class="totalPages"></span>
+	</div>
+</div>
+`;
 };
 
 // Endpoint to generate PDF
@@ -188,21 +313,7 @@ app.post("/generate-pdf", async (req, res) => {
 		// 3. Lanzar Puppeteer (Configuración compatible con Vercel)
 		let browser;
 		try {
-			if (process.env.VERCEL) {
-				const puppeteerCore = require("puppeteer-core");
-				const chromium = require("@sparticuz/chromium");
-				browser = await puppeteerCore.launch({
-					args: chromium.args,
-					defaultViewport: chromium.defaultViewport,
-					executablePath: await chromium.executablePath(),
-					headless: chromium.headless,
-				});
-			} else {
-				const puppeteerLocal = require("puppeteer");
-				browser = await puppeteerLocal.launch({
-					headless: "new",
-				});
-			}
+			browser = await launchBrowser();
 		} catch (e) {
 			console.error("error_puppeteer_launch", e);
 			return res.status(500).json({
@@ -269,6 +380,286 @@ app.post("/generate-pdf", async (req, res) => {
 			error: "Error interno del servidor al generar el PDF.",
 		});
 	}
+});
+
+app.post("/generate-document", async (req, res) => {
+	const data = req.body || {};
+	const docType = String(data.docType || "").toLowerCase();
+	if (docType !== "compromiso" && docType !== "informe") {
+		return res.status(400).json({
+			error: 'docType inválido. Use "compromiso" o "informe".',
+		});
+	}
+
+	const fontRegularBase64 = loadFontBase64(FONT_REGULAR_PATH);
+	const fontBoldBase64 = loadFontBase64(FONT_BOLD_PATH);
+	const logoBase64 = loadLogoBase64();
+
+	const nombre = String(data.nombre || "").trim();
+	const dni = String(data.dni || "").trim();
+	const direction = String(data.direction || "").trim();
+
+	if (!nombre || !dni) {
+		return res.status(400).json({
+			error: "Faltan datos requeridos (nombre, dni).",
+		});
+	}
+
+	const ahora = new Date();
+	const fechaEmision = data.fecha_emision
+		? new Date(data.fecha_emision)
+		: ahora;
+	const fechaEmisionLarga = formatFechaLarga(fechaEmision);
+
+	let templatePath;
+	let templateVars;
+	let filenameUtf8;
+
+	if (docType === "compromiso") {
+		const deudaTotal = parseMonto(data.deuda_total ?? data.monto_total);
+		const montoPactado = parseMonto(data.monto_pactado);
+		const cuotaInicial = parseMonto(data.cuota_inicial);
+		const cuotas = Number(data.numero_cuotas || 0);
+
+		if (!Number.isFinite(deudaTotal) || deudaTotal <= 0) {
+			return res.status(400).json({
+				error: "deuda_total inválido.",
+			});
+		}
+		if (!Number.isFinite(montoPactado) || montoPactado <= 0) {
+			return res.status(400).json({
+				error: "monto_pactado inválido.",
+			});
+		}
+		if (!Number.isFinite(cuotaInicial) || cuotaInicial < 0) {
+			return res.status(400).json({
+				error: "cuota_inicial inválido.",
+			});
+		}
+		if (!Number.isFinite(cuotas) || cuotas <= 0) {
+			return res.status(400).json({
+				error: "numero_cuotas inválido.",
+			});
+		}
+
+		const saldoFraccionado = Math.max(0, montoPactado - cuotaInicial);
+		const cronograma = buildCronograma(
+			data.fecha_primera_cuota || fechaEmision,
+			cuotas,
+			saldoFraccionado,
+		);
+
+		const montoCondonado = Math.max(0, deudaTotal - montoPactado);
+
+		templatePath = path.join(TYPES_DIR, "compromiso.ejs");
+		templateVars = {
+			fontRegularBase64,
+			fontBoldBase64,
+			logoBase64,
+			codigo: String(data.codigo || "ATE-RD N° 001-2026/G.R."),
+			nombre,
+			dni,
+			direction,
+			fecha_emision_larga: fechaEmisionLarga,
+			fecha_credito_larga: formatFechaLarga(
+				data.fecha_credito || fechaEmision,
+			),
+			deuda_total: formatMonto(deudaTotal),
+			monto_pactado: formatMonto(montoPactado),
+			monto_condonado: formatMonto(montoCondonado),
+			cuota_inicial: formatMonto(cuotaInicial),
+			saldo_fraccionado: formatMonto(saldoFraccionado),
+			numero_cuotas: String(cuotas).padStart(2, "0"),
+			cronograma,
+			total_cronograma: formatMonto(saldoFraccionado),
+		};
+		filenameUtf8 = `Compromiso de Pago - ${nombre}`;
+	} else {
+		const deudaTotal = parseMonto(data.deuda_total ?? data.monto_total);
+		const saldoCapital = parseMonto(data.saldo_capital);
+		const interesComp = parseMonto(data.interes_compensatorio);
+		const interesMora = parseMonto(data.interes_moratorio);
+		const otrosCargos = parseMonto(data.otros_cargos);
+
+		if (!Number.isFinite(deudaTotal) || deudaTotal <= 0) {
+			return res.status(400).json({
+				error: "deuda_total inválido.",
+			});
+		}
+
+		const condonarInteres = Boolean(data.condonar_interes_compensatorio);
+		const condonarMora =
+			data.condonar_interes_moratorio === undefined
+				? true
+				: Boolean(data.condonar_interes_moratorio);
+		const condonarOtros = Boolean(data.condonar_otros_cargos);
+
+		const condonarInteresMonto = parseMonto(
+			data.condonar_interes_compensatorio_monto,
+		);
+		const condonarMoraMonto = parseMonto(
+			data.condonar_interes_moratorio_monto,
+		);
+		const condonarOtrosMonto = parseMonto(data.condonar_otros_cargos_monto);
+
+		const condonadoInteresValue =
+			Number.isFinite(condonarInteresMonto) && condonarInteresMonto > 0
+				? Math.min(condonarInteresMonto, interesComp)
+				: condonarInteres
+					? interesComp
+					: 0;
+		const condonadoMoraValue =
+			Number.isFinite(condonarMoraMonto) && condonarMoraMonto > 0
+				? Math.min(condonarMoraMonto, interesMora)
+				: condonarMora
+					? interesMora
+					: 0;
+		const condonadoOtrosValue =
+			Number.isFinite(condonarOtrosMonto) && condonarOtrosMonto > 0
+				? Math.min(condonarOtrosMonto, otrosCargos)
+				: condonarOtros
+					? otrosCargos
+					: 0;
+
+		const montoCondonado = Math.max(
+			0,
+			condonadoInteresValue + condonadoMoraValue + condonadoOtrosValue,
+		);
+		const montoPactado = Math.max(0, deudaTotal - montoCondonado);
+
+		const cuotaInicial = parseMonto(data.cuota_inicial);
+		const cuotas = Number(data.numero_cuotas || 0);
+		if (!Number.isFinite(cuotas) || cuotas <= 0) {
+			return res.status(400).json({
+				error: "numero_cuotas inválido.",
+			});
+		}
+		if (!Number.isFinite(cuotaInicial) || cuotaInicial < 0) {
+			return res.status(400).json({
+				error: "cuota_inicial inválido.",
+			});
+		}
+		const saldoFraccionado = Math.max(0, montoPactado - cuotaInicial);
+		const cronograma = buildCronograma(
+			data.fecha_primera_cuota || fechaEmision,
+			cuotas,
+			saldoFraccionado,
+		);
+
+		const numeroInforme = String(data.numero_informe || "007").trim();
+		templatePath = path.join(TYPES_DIR, "informe.ejs");
+		templateVars = {
+			fontRegularBase64,
+			fontBoldBase64,
+			logoBase64,
+			codigo: String(data.codigo || `IGR-N° ${numeroInforme}-2026/G.R.`),
+			numero_informe: numeroInforme,
+			nombre,
+			dni,
+			direction,
+			fecha_emision_larga: fechaEmisionLarga,
+			para: String(
+				data.para ||
+					"Administración de Créditos / Gerencia de Recuperaciones",
+			),
+			de: String(data.de || "Gestor de Recuperaciones"),
+			asunto: String(
+				data.asunto ||
+					`Solicitud de Condonación de Mora - Socio ${nombre}`,
+			),
+			deuda_total: formatMonto(deudaTotal),
+			dias_atraso: String(data.dias_atraso || "+0"),
+			estado_deuda: String(data.estado_deuda || "Cartera Castigada"),
+			fecha_credito_larga: formatFechaLarga(
+				data.fecha_credito || fechaEmision,
+			),
+			saldo_capital: formatMonto(saldoCapital),
+			interes_compensatorio: formatMonto(interesComp),
+			interes_moratorio: formatMonto(interesMora),
+			otros_cargos: formatMonto(otrosCargos),
+			beneficio_condonado: formatMonto(montoCondonado),
+			monto_pactado: formatMonto(montoPactado),
+			cuota_inicial: formatMonto(cuotaInicial),
+			saldo_fraccionado: formatMonto(saldoFraccionado),
+			numero_cuotas: String(cuotas).padStart(2, "0"),
+			cronograma,
+			total_cronograma: formatMonto(saldoFraccionado),
+			fecha_reprogramacion_larga: formatFechaLarga(
+				data.fecha_reprogramacion || fechaEmision,
+			),
+		};
+		filenameUtf8 = `Informe de Gestión - ${nombre}`;
+	}
+
+	let html;
+	try {
+		html = await ejs.renderFile(templatePath, templateVars);
+	} catch (e) {
+		console.error("error_ejs_render_document", e);
+		return res.status(500).json({
+			error: "Error al renderizar la plantilla del documento",
+			details: e.message,
+		});
+	}
+
+	let browser;
+	try {
+		browser = await launchBrowser();
+	} catch (e) {
+		console.error("error_puppeteer_launch_document", e);
+		return res.status(500).json({
+			error: "Error al iniciar el motor de PDF.",
+			details: e.message,
+		});
+	}
+
+	const page = await browser.newPage();
+	page.setDefaultNavigationTimeout(60000);
+	await page.setContent(html, { waitUntil: "domcontentloaded" });
+
+	const headerTemplate = buildHeaderTemplate({
+		logoBase64,
+		codigo: templateVars.codigo,
+	});
+	const footerTemplate = buildFooterTemplate();
+
+	let pdfBuffer;
+	try {
+		pdfBuffer = await page.pdf({
+			format: "A4",
+			printBackground: true,
+			displayHeaderFooter: true,
+			headerTemplate,
+			footerTemplate,
+			margin: {
+				top: "4.2cm",
+				right: "2.54cm",
+				bottom: "2.8cm",
+				left: "2.54cm",
+			},
+		});
+	} catch (e) {
+		console.error("error_pdf_generate_document", e);
+		await browser.close().catch(() => {});
+		return res.status(500).json({
+			error: "Error al generar el PDF del documento.",
+			details: e.message,
+		});
+	}
+
+	await browser.close();
+
+	res.setHeader("Content-Type", "application/pdf");
+	const asciiName = filenameUtf8
+		.replace(/[<>:"/\\|?*]+/g, "-")
+		.replace(/[^\x20-\x7E]/g, "");
+	res.setHeader(
+		"Content-Disposition",
+		`attachment; filename="${asciiName}.pdf"; filename*=UTF-8''${encodeURIComponent(
+			filenameUtf8,
+		)}.pdf`,
+	);
+	res.send(Buffer.from(pdfBuffer));
 });
 
 app.get("/health", (_req, res) => {

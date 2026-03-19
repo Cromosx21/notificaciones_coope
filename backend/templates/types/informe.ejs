@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<style>
+			@font-face {
+				font-family: "Cambria";
+				src: url("data:font/truetype;charset=utf-8;base64,<%= fontRegularBase64 %>")
+					format("truetype");
+				font-weight: normal;
+				font-style: normal;
+			}
+			@font-face {
+				font-family: "Cambria";
+				src: url("data:font/truetype;charset=utf-8;base64,<%= fontBoldBase64 %>")
+					format("truetype");
+				font-weight: bold;
+				font-style: normal;
+			}
+			@page {
+				size: A4;
+				margin-top: 1cm;
+				margin-bottom: 2.54cm;
+				margin-left: 2.54cm;
+				margin-right: 2.54cm;
+			}
+			body {
+				font-family: "Cambria", "Times New Roman", serif;
+				font-size: 12pt;
+				line-height: 1.15;
+				color: #000;
+				margin: 0;
+			}
+			.bold {
+				font-weight: bold;
+			}
+			.underline {
+				text-decoration: underline;
+			}
+			.text-center {
+				text-align: center;
+			}
+			.text-justify {
+				text-align: justify;
+			}
+			.mt-1 {
+				margin-top: 0.25rem;
+			}
+			.mt-2 {
+				margin-top: 0.5rem;
+			}
+			.mt-3 {
+				margin-top: 0.75rem;
+			}
+			.mt-4 {
+				margin-top: 1rem;
+			}
+			.header {
+				display: flex;
+				justify-content: space-between;
+				align-items: flex-start;
+				gap: 0.75rem;
+			}
+			.header-left {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				min-width: 160px;
+			}
+			.logo {
+				width: 90px;
+				height: auto;
+			}
+			.header-center {
+				flex: 1;
+				text-align: center;
+				font-size: 9.5pt;
+				line-height: 1.1;
+				margin-top: 0.15rem;
+			}
+			.header-right {
+				text-align: right;
+				min-width: 160px;
+				font-size: 9.5pt;
+			}
+			.header-code {
+				margin-top: 0.3rem;
+				display: inline-block;
+				border: 1px solid #000;
+				padding: 0.15rem 0.4rem;
+				font-size: 9.5pt;
+			}
+			.page {
+				page-break-after: always;
+			}
+			.page:last-child {
+				page-break-after: auto;
+			}
+			.hr {
+				border-top: 1px solid #000;
+				margin: 0.75rem 0 0;
+			}
+			.kv {
+				margin-top: 0.75rem;
+				font-size: 11.5pt;
+			}
+			.kv .row {
+				margin: 0.25rem 0;
+			}
+			.list {
+				margin: 0.5rem 0 0;
+				padding-left: 1.3rem;
+			}
+			.list li {
+				margin: 0.25rem 0;
+			}
+			.table {
+				width: 100%;
+				border-collapse: collapse;
+				margin-top: 0.75rem;
+				font-size: 11pt;
+			}
+			thead {
+				display: table-header-group;
+			}
+			tfoot {
+				display: table-footer-group;
+			}
+			.table th,
+			.table td {
+				border: 1px solid #000;
+				padding: 0.2rem 0.35rem;
+				vertical-align: top;
+			}
+			.table th {
+				text-align: center;
+				font-weight: bold;
+			}
+			.table td:last-child {
+				text-align: right;
+				white-space: nowrap;
+			}
+			.table .neg {
+				color: #c00000;
+				font-weight: bold;
+			}
+			.signatures {
+				display: flex;
+				justify-content: space-between;
+				margin-top: 3rem;
+				gap: 2rem;
+			}
+			.sig {
+				flex: 1;
+				text-align: center;
+				font-size: 10.5pt;
+			}
+			.sig-line {
+				border-top: 1px solid #000;
+				margin: 0 2rem 0.35rem;
+				height: 1px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="page">
+			<div class="header">
+				<div class="header-left">
+					<% if (logoBase64) { %>
+					<img
+						class="logo"
+						src="data:image/png;base64,<%= logoBase64 %>"
+						alt="Logo"
+					/>
+					<% } %>
+				</div>
+				<div class="header-center">
+					<div class="bold">UNIDAD DE RECUPERACIONES JUDICIALES Y ASUNTOS LEGALES</div>
+				</div>
+				<div class="header-right">
+					<div>Página 1 de 3</div>
+					<div class="header-code"><%= codigo %></div>
+				</div>
+			</div>
+
+			<div class="text-center bold underline mt-4">
+				INFORME DE GESTIÓN DE RECUPERACIONES N° <%= numero_informe %> - 2026 – COOP-AYAC
+			</div>
+
+			<div class="kv">
+				<div class="row"><span class="bold">A:</span> <%= para %></div>
+				<div class="row"><span class="bold">DE:</span> <%= de %></div>
+				<div class="row"><span class="bold">ASUNTO:</span> <%= asunto %></div>
+				<div class="row"><span class="bold">FECHA:</span> <%= fecha_emision_larga %></div>
+			</div>
+
+			<div class="hr"></div>
+
+			<div class="bold mt-4">PRIMERO: ANTECEDENTES DEL CRÉDITO</div>
+			<div class="text-justify mt-2">
+				La Cooperativa de Ahorro y Crédito "Niño Rey", quien en adelante se le denominará
+				<span class="bold">LA COOPERATIVA</span>, realiza un estudio de realidad financiera del socio
+				<span class="bold"><%= nombre %></span>, identificado con DNI <span class="bold"><%= dni %></span> quien ahora en adelante se
+				denominará <span class="bold">EL DEUDOR</span>, quien presenta una deuda con un nivel de morosidad crítico.
+			</div>
+
+			<ul class="list">
+				<li><span class="bold">Deuda total:</span> S/ <%= deuda_total %></li>
+				<li><span class="bold">Días de atraso:</span> <%= dias_atraso %></li>
+				<li><span class="bold">Estado de la deuda:</span> <%= estado_deuda %></li>
+			</ul>
+
+			<div class="bold mt-4">SEGUNDO: RECONOCIMIENTO DE DEUDA TOTAL</div>
+			<div class="text-justify mt-2">
+				EL DEUDOR reconoce de manera expresa, irrevocable y sin reserva alguna, que mantiene una deuda líquida y exigible con
+				LA COOPERATIVA por el crédito desembolsado el <span class="bold"><%= fecha_credito_larga %></span>, la cual asciende a la fecha a la suma total de
+				S/ <span class="bold"><%= deuda_total %></span>.
+			</div>
+
+			<div class="bold mt-4">SEGUNDA: DEL BENEFICIO DE CONDONACIÓN E IMPORTE A PAGAR</div>
+			<div class="text-justify mt-2">
+				LA COOPERATIVA, en atención a la voluntad de pago del socio, accede a otorgar una <span class="bold">CONDONACIÓN PARCIAL</span>
+				de la deuda bajo las siguientes condiciones:
+			</div>
+		</div>
+
+		<div class="page">
+			<div class="header">
+				<div class="header-left">
+					<% if (logoBase64) { %>
+					<img
+						class="logo"
+						src="data:image/png;base64,<%= logoBase64 %>"
+						alt="Logo"
+					/>
+					<% } %>
+				</div>
+				<div class="header-center">
+					<div class="bold">UNIDAD DE RECUPERACIONES JUDICIALES Y ASUNTOS LEGALES</div>
+				</div>
+				<div class="header-right">
+					<div>Página 2 de 3</div>
+					<div class="header-code"><%= codigo %></div>
+				</div>
+			</div>
+
+			<table class="table">
+				<thead>
+					<tr>
+						<th>CONCEPTO</th>
+						<th>DETALLE DE MONTOS</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td class="bold">ESTADO DE LA DEUDA ORIGINAL</td>
+						<td class="bold">S/ <%= deuda_total %></td>
+					</tr>
+					<tr>
+						<td>Saldo Capital</td>
+						<td>S/ <%= saldo_capital %></td>
+					</tr>
+					<tr>
+						<td>Interés Compensatorio</td>
+						<td>S/ <%= interes_compensatorio %></td>
+					</tr>
+					<tr>
+						<td>Interés Moratorio (Mora)</td>
+						<td>S/ <%= interes_moratorio %></td>
+					</tr>
+					<tr>
+						<td>Otros cargos</td>
+						<td>S/ <%= otros_cargos %></td>
+					</tr>
+					<tr>
+						<td class="bold">BENEFICIO CONDONADO</td>
+						<td class="neg">-S/ <%= beneficio_condonado %></td>
+					</tr>
+					<tr>
+						<td class="bold">MONTO PACTADO (CONGELAR)</td>
+						<td class="bold">S/ <%= monto_pactado %></td>
+					</tr>
+					<tr>
+						<td class="bold">ESTRUCTURA DE CANCELACIÓN</td>
+						<td class="bold">S/ <%= saldo_fraccionado %></td>
+					</tr>
+					<tr>
+						<td>Cuota Inicial (Pagada a la firma)</td>
+						<td>S/ <%= cuota_inicial %></td>
+					</tr>
+				</tbody>
+			</table>
+
+			<div class="text-justify mt-3">
+				<span class="bold">Condición:</span> Este beneficio de condonación solo se hará efectivo si EL DEUDOR cumple puntualmente con
+				la totalidad de los pagos descritos en la cláusula tercera.
+			</div>
+
+			<div class="bold mt-4">TERCERA: CRONOGRAMA DE PAGOS Y CUOTA INICIAL</div>
+			<div class="text-justify mt-2">
+				El saldo fraccionado de S/ <span class="bold"><%= saldo_fraccionado %></span> se pagará en <span class="bold"><%= numero_cuotas %></span>
+				cuotas mensuales, según el siguiente cronograma:
+			</div>
+
+			<table class="table">
+				<thead>
+					<tr>
+						<th>CUOTA</th>
+						<th>FECHA DE VENCIMIENTO</th>
+						<th>MONTO A PAGAR</th>
+					</tr>
+				</thead>
+				<tbody>
+					<% cronograma.forEach((row) => { %>
+					<tr>
+						<td><%= row.cuota %></td>
+						<td><%= row.fecha_vencimiento %></td>
+						<td>S/ <%= row.monto %></td>
+					</tr>
+					<% }) %>
+				</tbody>
+				<tfoot>
+					<tr>
+						<td colspan="2" class="bold text-center">TOTAL</td>
+						<td class="bold">S/ <%= total_cronograma %></td>
+					</tr>
+				</tfoot>
+			</table>
+		</div>
+
+		<div class="page">
+			<div class="header">
+				<div class="header-left">
+					<% if (logoBase64) { %>
+					<img
+						class="logo"
+						src="data:image/png;base64,<%= logoBase64 %>"
+						alt="Logo"
+					/>
+					<% } %>
+				</div>
+				<div class="header-center">
+					<div class="bold">UNIDAD DE RECUPERACIONES JUDICIALES Y ASUNTOS LEGALES</div>
+				</div>
+				<div class="header-right">
+					<div>Página 3 de 3</div>
+					<div class="header-code"><%= codigo %></div>
+				</div>
+			</div>
+
+			<div class="text-justify mt-3">
+				Se ha pactado con EL DEUDOR la reestructuración del calendario de pagos para el
+				<span class="bold"><%= fecha_reprogramacion_larga %></span>. Este nuevo cronograma sustituye al actual,
+				ajustando los montos conforme a los términos acordados para la regularización de la deuda.
+			</div>
+
+			<div class="bold mt-4">CUARTA: CLÁUSULA RESOLUTORIA POR INCUMPLIMIENTO</div>
+			<div class="text-justify mt-2">
+				En caso de que EL DEUDOR incumpla con el pago de una (01) sola cuota en la fecha prevista,
+				el beneficio de condonación quedará automáticamente <span class="bold">SIN EFECTO</span>. En tal escenario:
+			</div>
+			<ol class="list">
+				<li class="text-justify">
+					La deuda retornará a su estado original de S/ <span class="bold"><%= deuda_total %></span>, descontando únicamente los pagos parciales realizados.
+				</li>
+				<li class="text-justify">
+					LA COOPERATIVA procederá de inmediato con el cobro judicial, solicitando el embargo de bienes y cuentas por el monto total remanente,
+					más costas, costos y penalidades de ley.
+				</li>
+			</ol>
+
+			<div class="bold mt-4">QUINTO: CONCLUSIÓN</div>
+			<div class="text-justify mt-2">
+				Se eleva el presente informe recomendando la aprobación de las facilidades solicitadas, considerando que el socio no cuenta con respaldo documental,
+				pero ha demostrado voluntad de pago tras la visita y saneamiento de deuda.
+			</div>
+
+			<div class="mt-4">Atentamente,</div>
+
+			<div class="signatures">
+				<div class="sig">
+					<div class="sig-line"></div>
+					<div class="bold">ÁREA DE RECUPERACIONES</div>
+				</div>
+				<div class="sig">
+					<div class="sig-line"></div>
+					<div class="bold">ADMINISTRACIÓN DE CRÉDITOS</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
