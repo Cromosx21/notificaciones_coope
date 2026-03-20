@@ -3,7 +3,15 @@ const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
 const ejs = require("ejs");
-const PizZip = require("pizzip");
+const { parseMonto, formatMonto, montoATextoSoles } = require("./lib/money");
+const { formatFechaLarga, parseDateInput } = require("./lib/date");
+const { buildCronograma } = require("./lib/cronograma");
+const { loadFontBase64, createLogoBase64Loader } = require("./lib/assets");
+const { launchBrowser } = require("./lib/puppeteer");
+const {
+	buildHeaderTemplate,
+	buildFooterTemplate,
+} = require("./lib/pdfTemplates");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -32,176 +40,6 @@ const TEMPLATE_DIR = path.join(__dirname, "templates");
 const FONT_REGULAR_PATH = path.join(__dirname, "fonts", "cambria.ttc");
 const FONT_BOLD_PATH = path.join(__dirname, "fonts", "cambriab.ttf");
 
-const parseMonto = (value) => {
-	if (typeof value === "number") {
-		return value;
-	}
-	if (typeof value !== "string") {
-		return 0;
-	}
-	const normalized = value.replace(/[^\d.-]/g, "");
-	const num = Number(normalized);
-	if (!Number.isFinite(num)) {
-		return 0;
-	}
-	return num;
-};
-
-const formatMonto = (value) => {
-	return new Intl.NumberFormat("en-US", {
-		minimumFractionDigits: 2,
-		maximumFractionDigits: 2,
-	}).format(value);
-};
-
-const toWordsEs = (n) => {
-	const num = Math.trunc(Number(n) || 0);
-	if (num === 0) return "CERO";
-	if (num < 0) return `MENOS ${toWordsEs(-num)}`;
-
-	const unidades = [
-		"",
-		"UNO",
-		"DOS",
-		"TRES",
-		"CUATRO",
-		"CINCO",
-		"SEIS",
-		"SIETE",
-		"OCHO",
-		"NUEVE",
-	];
-	const especiales = {
-		10: "DIEZ",
-		11: "ONCE",
-		12: "DOCE",
-		13: "TRECE",
-		14: "CATORCE",
-		15: "QUINCE",
-		16: "DIECISÉIS",
-		17: "DIECISIETE",
-		18: "DIECIOCHO",
-		19: "DIECINUEVE",
-		20: "VEINTE",
-		21: "VEINTIUNO",
-		22: "VEINTIDÓS",
-		23: "VEINTITRÉS",
-		24: "VEINTICUATRO",
-		25: "VEINTICINCO",
-		26: "VEINTISÉIS",
-		27: "VEINTISIETE",
-		28: "VEINTIOCHO",
-		29: "VEINTINUEVE",
-	};
-	const decenas = [
-		"",
-		"",
-		"VEINTE",
-		"TREINTA",
-		"CUARENTA",
-		"CINCUENTA",
-		"SESENTA",
-		"SETENTA",
-		"OCHENTA",
-		"NOVENTA",
-	];
-	const centenas = [
-		"",
-		"CIENTO",
-		"DOSCIENTOS",
-		"TRESCIENTOS",
-		"CUATROCIENTOS",
-		"QUINIENTOS",
-		"SEISCIENTOS",
-		"SETECIENTOS",
-		"OCHOCIENTOS",
-		"NOVECIENTOS",
-	];
-
-	const twoDigits = (x) => {
-		if (x < 10) return unidades[x];
-		if (especiales[x]) return especiales[x];
-		const tens = Math.trunc(x / 10);
-		const unit = x % 10;
-		if (tens === 2)
-			return `VEINTI${unidades[unit].toLowerCase()}`.toUpperCase();
-		return unit ? `${decenas[tens]} Y ${unidades[unit]}` : decenas[tens];
-	};
-
-	const threeDigits = (x) => {
-		if (x === 0) return "";
-		if (x === 100) return "CIEN";
-		const hund = Math.trunc(x / 100);
-		const rest = x % 100;
-		const hundText = hund ? centenas[hund] : "";
-		const restText = rest ? twoDigits(rest) : "";
-		return [hundText, restText].filter(Boolean).join(" ").trim();
-	};
-
-	const section = (x) => {
-		const thousands = Math.trunc(x / 1000);
-		const rest = x % 1000;
-		const parts = [];
-		if (thousands) {
-			if (thousands === 1) parts.push("MIL");
-			else parts.push(`${threeDigits(thousands)} MIL`);
-		}
-		if (rest) parts.push(threeDigits(rest));
-		return parts.join(" ").trim();
-	};
-
-	const millions = Math.trunc(num / 1_000_000);
-	const rest = num % 1_000_000;
-	const parts = [];
-	if (millions) {
-		if (millions === 1) parts.push("UN MILLÓN");
-		else parts.push(`${section(millions)} MILLONES`);
-	}
-	if (rest) parts.push(section(rest));
-	return parts.join(" ").trim();
-};
-
-const montoATextoSoles = (value) => {
-	const totalCents = Math.round((Number(value) || 0) * 100);
-	const soles = Math.trunc(totalCents / 100);
-	const cents = Math.abs(totalCents % 100);
-	const moneda = soles === 1 ? "SOL" : "SOLES";
-	const texto = toWordsEs(soles === 0 ? 0 : soles);
-	return `${texto} CON ${String(cents).padStart(2, "0")}/100 ${moneda}`;
-};
-
-// Helper to load font as base64
-const loadFontBase64 = (fontPath) => {
-	try {
-		if (fs.existsSync(fontPath)) {
-			const fontBuffer = fs.readFileSync(fontPath);
-			return fontBuffer.toString("base64");
-		}
-		return null;
-	} catch (e) {
-		console.error("Error loading font:", e);
-		return null;
-	}
-};
-
-const launchBrowser = async () => {
-	if (process.env.VERCEL) {
-		const puppeteerCore = require("puppeteer-core");
-		const chromium = require("@sparticuz/chromium");
-		return puppeteerCore.launch({
-			args: chromium.args,
-			defaultViewport: chromium.defaultViewport,
-			executablePath: await chromium.executablePath(),
-			headless: chromium.headless,
-		});
-	}
-
-	const puppeteerLocal = require("puppeteer");
-	return puppeteerLocal.launch({
-		headless: "new",
-	});
-};
-
 const TYPES_DIR = path.join(TEMPLATE_DIR, "types");
 const TYPES_DOCX_COMPROMISO_PATH = path.join(
 	TYPES_DIR,
@@ -212,139 +50,18 @@ const TYPES_DOCX_INFORME_PATH = path.join(
 	"INFORME DE GESTIÓN DE RECUPERACIONES.docx",
 );
 
-let cachedLogoBase64;
-const loadLogoBase64 = () => {
-	if (cachedLogoBase64 !== undefined) return cachedLogoBase64;
-	try {
-		const docxPath = fs.existsSync(TYPES_DOCX_COMPROMISO_PATH)
-			? TYPES_DOCX_COMPROMISO_PATH
-			: TYPES_DOCX_INFORME_PATH;
-		if (!fs.existsSync(docxPath)) {
-			cachedLogoBase64 = null;
-			return cachedLogoBase64;
-		}
-		const zip = new PizZip(fs.readFileSync(docxPath));
-		const img = zip.file("word/media/image1.png");
-		if (!img) {
-			cachedLogoBase64 = null;
-			return cachedLogoBase64;
-		}
-		cachedLogoBase64 = img.asNodeBuffer().toString("base64");
-		return cachedLogoBase64;
-	} catch (e) {
-		console.error("error_load_logo", e);
-		cachedLogoBase64 = null;
-		return cachedLogoBase64;
-	}
-};
-
-const formatFechaLarga = (value) => {
-	const d = value instanceof Date ? value : new Date(value);
-	if (!Number.isFinite(d.getTime())) return "";
-	return d.toLocaleDateString("es-PE", {
-		day: "2-digit",
-		month: "long",
-		year: "numeric",
-	});
-};
-
-const buildCronograma = (firstDateValue, cuotasCount, totalValue) => {
-	const cuotas = Math.max(0, Math.trunc(Number(cuotasCount) || 0));
-	if (!cuotas) return [];
-	const firstDate = new Date(firstDateValue);
-	if (!Number.isFinite(firstDate.getTime())) return [];
-
-	const totalCents = Math.round((Number(totalValue) || 0) * 100);
-	const perCents = Math.trunc(totalCents / cuotas);
-
-	const rows = [];
-	for (let idx = 0; idx < cuotas; idx += 1) {
-		const date = new Date(firstDate.getTime());
-		date.setMonth(firstDate.getMonth() + idx);
-		const cents =
-			idx === cuotas - 1
-				? totalCents - perCents * (cuotas - 1)
-				: perCents;
-		rows.push({
-			cuota: String(idx + 1).padStart(2, "0"),
-			fecha_vencimiento: formatFechaLarga(date),
-			monto: formatMonto(cents / 100),
-		});
-	}
-	return rows;
-};
-
-const buildHeaderTemplate = ({
-	logoBase64,
-	codigo,
-	docType,
-	fontRegularBase64,
-	fontBoldBase64,
-}) => {
-	const logoHtml = logoBase64
-		? `<img src="data:image/png;base64,${logoBase64}" style="height:56px; margin-right:10px;" />`
-		: "";
-	const safeCodigo = String(codigo || "")
-		.replace(/</g, "&lt;")
-		.replace(/>/g, "&gt;");
-	const codigoLabel =
-		String(docType || "").toLowerCase() === "compromiso"
-			? `ATE-RD Nº ${safeCodigo} /G.R.`
-			: `IGR-Nº ${safeCodigo} /G.R.`;
-	const fontStyle = `
-<style>
-@font-face {
-	font-family: "CambriaRegularEmbed";
-	src: url("data:font/collection;charset=utf-8;base64,${fontRegularBase64 || ""}") format("truetype-collection");
-}
-@font-face {
-	font-family: "CambriaBoldEmbed";
-	src: url("data:font/ttf;charset=utf-8;base64,${fontBoldBase64 || ""}") format("truetype");
-}
-</style>
-`;
-	return `
-${fontStyle}
-<div style="width:100%; font-family: CambriaRegularEmbed, Cambria, 'Times New Roman', serif; font-size:9.5pt; color:#000; padding:0 2.54cm; box-sizing:border-box; margin-top: 0.5cm;">
-	<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; width:100%;">
-		<div style="display:flex; align-items:flex-start; min-width:160px;">
-			${logoHtml}
-		</div>
-		<div style="min-width:160px; width: fit-content; text-align:right; display:flex; flex-direction:column; align-items:flex-end;">
-			<div>Página <span class="pageNumber"></span> de <span class="totalPages"></span></div>
-			<div style="flex:1; text-align:right; line-height:1.1; margin-top:2px;">
-				<div style="font-family: CambriaBoldEmbed, Cambria, 'Times New Roman', serif; font-size:9pt;">UNIDAD DE RECUPERACIONES JUDICIALES Y ASUNTOS LEGALES</div>
-			</div>
-			<div style="border:1px solid #000; display:inline-block; padding:2px 6px; margin-top:2px;">${codigoLabel}</div>
-		</div>
-	</div>
-</div>
-`;
-};
-
-const buildFooterTemplate = ({ fontRegularBase64, fontBoldBase64 }) => {
-	const fontStyle = `
-<style>
-@font-face {
-	font-family: "CambriaRegularEmbed";
-	src: url("data:font/collection;charset=utf-8;base64,${fontRegularBase64 || ""}") format("truetype-collection");
-}
-@font-face {
-	font-family: "CambriaBoldEmbed";
-	src: url("data:font/ttf;charset=utf-8;base64,${fontBoldBase64 || ""}") format("truetype");
-}
-</style>
-`;
-	return `
-${fontStyle}
-<div style="width:100%; font-family: CambriaRegularEmbed, Cambria, 'Times New Roman', serif; font-size:9.5pt; color:#000; padding:0 2.54cm; box-sizing:border-box;">
-	<div style="width:100%; text-align:center;">
-	<strong>COOPAC NIÑO REY </strong> - Ayacucho, Perú - Sector Educacion Mz C lote 7-Pasaje los Amautas </br>
-Ayacucho, Peru - Telf: 979 585 886
-	</div>
-</div>
-`;
-};
+const loadLogoBase64 = createLogoBase64Loader({
+	frontendLogoPath: path.join(
+		__dirname,
+		"..",
+		"frontend",
+		"public",
+		"LOGOTIPO_NIÑO_REY_VARIACIÓN_1.png",
+	),
+	fallbackDocxPath: fs.existsSync(TYPES_DOCX_COMPROMISO_PATH)
+		? TYPES_DOCX_COMPROMISO_PATH
+		: TYPES_DOCX_INFORME_PATH,
+});
 
 // Endpoint to generate PDF
 app.post("/generate-pdf", async (req, res) => {
@@ -561,7 +278,7 @@ app.post("/generate-document", async (req, res) => {
 
 	const ahora = new Date();
 	const fechaEmision = data.fecha_emision
-		? new Date(data.fecha_emision)
+		? parseDateInput(data.fecha_emision)
 		: ahora;
 	const fechaEmisionLarga = formatFechaLarga(fechaEmision);
 
@@ -620,6 +337,7 @@ app.post("/generate-document", async (req, res) => {
 				data.fecha_credito || fechaEmision,
 			),
 			deuda_total: formatMonto(deudaTotal),
+			deuda_total_texto: montoATextoSoles(deudaTotal),
 			monto_pactado: formatMonto(montoPactado),
 			monto_condonado: formatMonto(montoCondonado),
 			cuota_inicial: formatMonto(cuotaInicial),
@@ -723,10 +441,7 @@ app.post("/generate-document", async (req, res) => {
 			dni,
 			direction,
 			fecha_emision_larga: fechaEmisionLarga,
-			para: String(
-				data.para ||
-					"Administración de Créditos / Gerencia de Recuperaciones",
-			),
+			para: "Administración de créditos / Gerencia de recuperaciones",
 			de: String(data.de || "Gestor de Recuperaciones"),
 			asunto: String(
 				data.asunto ||

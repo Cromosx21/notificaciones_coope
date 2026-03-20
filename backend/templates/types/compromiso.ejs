@@ -4,13 +4,13 @@
 		<meta charset="UTF-8" />
 		<style>
 			@font-face {
-				font-family: "CambriaRegular";
+				font-family: "CambriaRegularEmbed";
 				src: url("data:font/collection;charset=utf-8;base64,<%= fontRegularBase64 %>")
 					format("truetype-collection");
 				font-style: normal;
 			}
 			@font-face {
-				font-family: "CambriaBold";
+				font-family: "CambriaBoldEmbed";
 				src: url("data:font/ttf;charset=utf-8;base64,<%= fontBoldBase64 %>")
 					format("truetype");
 				font-style: normal;
@@ -18,20 +18,21 @@
 			@page {
 				size: A4;
 				margin-top: 2.70cm;
-				margin-bottom: 2.54cm;
+				margin-bottom: 2.0cm;
 				margin-left: 2.54cm;
 				margin-right: 2.54cm;
 			}
 			body {
-				font-family: "CambriaRegular", "Cambria", "Times New Roman", serif;
+				font-family:
+					"CambriaRegularEmbed", "Cambria", "Times New Roman", serif;
 				font-size: 12pt;
 				line-height: 1.5;
 				color: #000;
 				margin: 0;
 			}
 			.bold {
-				font-family: "CambriaBold", "CambriaRegular", "Cambria", "Times New Roman",
-					serif;
+				font-family:
+					"CambriaBoldEmbed", "Cambria", "Times New Roman", serif;
 				font-weight: normal;
 			}
 			.underline {
@@ -115,7 +116,9 @@
 			}
 			.table th {
 				text-align: center;
-				font-weight: bold;
+				font-family:
+					"CambriaBoldEmbed", "Cambria", "Times New Roman", serif;
+				font-weight: normal;
 			}
 			.table td:first-child {
 				width: 16%;
@@ -172,7 +175,7 @@
 				<span class="bold">EL DEUDOR </span>reconoce de manera expresa, irrevocable y sin reserva alguna, que mantiene
 				una deuda líquida y exigible con <span class="bold">LA COOPERATIVA</span> por el crédito desembolsado el
 				<span class="bold"><%= fecha_credito_larga %></span>, la cual asciende a la fecha a la suma total de
-				S/ <span class="bold"><%= deuda_total %></span>, que incluye capital, intereses compensatorios, moratorios y gastos de cobranza.
+				S/ <span class="bold"><%= deuda_total %></span> (<%= deuda_total_texto %>), que incluye capital, intereses compensatorios, moratorios y gastos de cobranza.
 			</div>
 
 			<div class="bold mt-4">SEGUNDA: DEL BENEFICIO DE CONDONACIÓN E IMPORTE A PAGAR</div>
@@ -207,68 +210,69 @@
 					<span class="bold"><%= numero_cuotas %></span> cuotas mensuales.
 				</li>
 			</ol>
-		</div>
 
-		<table class="table">
-			<thead>
-				<tr>
-					<th>CUOTA</th>
-					<th>FECHA DE VENCIMIENTO</th>
-					<th>MONTO A PAGAR</th>
-				</tr>
-			</thead>
-			<tbody>
-				<% cronograma.forEach((row) => { %>
-				<tr>
-					<td><%= row.cuota %></td>
-					<td><%= row.fecha_vencimiento %></td>
-					<td>S/ <%= row.monto %></td>
-				</tr>
-				<% }) %>
-			</tbody>
-			<tfoot>
-				<tr>
-					<td colspan="2" class="bold text-center">TOTAL</td>
-					<td class="bold">S/ <%= total_cronograma %></td>
-				</tr>
-			</tfoot>
-		</table>
-
-		<div class="bold mt-4">CUARTA: CLÁUSULA RESOLUTORIA POR INCUMPLIMIENTO</div>
-		<div class="text-justify mt-2">
-			En caso de que <span class="bold">EL DEUDOR</span> incumpla con el pago de una (01) sola cuota en la fecha prevista,
-			el beneficio de condonación quedará automáticamente <span class="bold">SIN EFECTO</span>. En tal escenario:
-		</div>
-		<ol>
-			<li class="text-justify">
-				La deuda retornará a su estado original de S/ <span class="bold"><%= deuda_total %></span>, descontando únicamente los
-				pagos parciales realizados.
-			</li>
-			<li class="text-justify">
-				<span class="bold">LA COOPERATIVA</span> procederá de inmediato con el cobro judicial, solicitando el embargo de bienes
-				y cuentas por el monto total remanente, más costas, costos y penalidades de ley.
-			</li>
-		</ol>
-
-		<div class="bold mt-4">QUINTA: FORMA DE PAGO Y CONFORMIDAD</div>
-		<div class="text-justify mt-2">
-			Todo depósito se realizará en <span class="bold">CUENTA CUSTODIA</span> de la institución. Las partes firman el
-			presente documento en señal de absoluta conformidad, ratificando su contenido y firmas.
-		</div>
-
-		<div class="mt-4">
-			En la ciudad de Ayacucho, a los <span class="bold"><%= fecha_emision_larga %></span>.
-		</div>
-
-		<div class="signatures mt-16">
-			<div class="sig">
-				<div class="sig-line"></div>
-				<div class="bold">LA COOPERATIVA</div>
+			<table class="table">
+				<thead>
+					<tr>
+						<th>CUOTA</th>
+						<th>FECHA DE VENCIMIENTO</th>
+						<th>MONTO A PAGAR</th>
+					</tr>
+				</thead>
+				<tbody>
+					<% cronograma.forEach((row) => { %>
+					<tr>
+						<td><%= row.cuota %></td>
+						<td><%= row.fecha_vencimiento %></td>
+						<td>S/ <%= row.monto %></td>
+					</tr>
+					<% }) %>
+				</tbody>
+				<tfoot>
+					<tr>
+						<td colspan="2" class="bold text-center">TOTAL</td>
+						<td class="bold">S/ <%= total_cronograma %></td>
+					</tr>
+				</tfoot>
+			</table>
+	
+			<div class="bold mt-4">CUARTA: CLÁUSULA RESOLUTORIA POR INCUMPLIMIENTO</div>
+			<div class="text-justify mt-2">
+				En caso de que <span class="bold">EL DEUDOR</span> incumpla con el pago de una (01) sola cuota en la fecha prevista,
+				el beneficio de condonación quedará automáticamente <span class="bold">SIN EFECTO</span>. En tal escenario:
 			</div>
-			<div class="sig">
-				<div class="sig-line"></div>
-				<div class="bold">EL DEUDOR</div>
+			<ol>
+				<li class="text-justify">
+					La deuda retornará a su estado original de S/ <span class="bold"><%= deuda_total %></span>, descontando únicamente los
+					pagos parciales realizados.
+				</li>
+				<li class="text-justify">
+					<span class="bold">LA COOPERATIVA</span> procederá de inmediato con el cobro judicial, solicitando el embargo de bienes
+					y cuentas por el monto total remanente, más costas, costos y penalidades de ley.
+				</li>
+			</ol>
+	
+			<div class="bold mt-4">QUINTA: FORMA DE PAGO Y CONFORMIDAD</div>
+			<div class="text-justify mt-2">
+				Todo depósito se realizará en <span class="bold">CUENTA CUSTODIA</span> de la institución. Las partes firman el
+				presente documento en señal de absoluta conformidad, ratificando su contenido y firmas.
+			</div>
+	
+			<div class="mt-4">
+				En la ciudad de Ayacucho, a los <span class="bold"><%= fecha_emision_larga %></span>.
+			</div>
+	
+			<div class="signatures mt-16">
+				<div class="sig">
+					<div class="sig-line"></div>
+					<div class="bold">LA COOPERATIVA</div>
+				</div>
+				<div class="sig">
+					<div class="sig-line"></div>
+					<div class="bold">EL DEUDOR</div>
+				</div>
 			</div>
 		</div>
+
 	</body>
 </html>

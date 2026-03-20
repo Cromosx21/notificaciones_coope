@@ -4,34 +4,35 @@
 		<meta charset="UTF-8" />
 		<style>
 			@font-face {
-				font-family: "CambriaRegular";
+				font-family: "CambriaRegularEmbed";
 				src: url("data:font/collection;charset=utf-8;base64,<%= fontRegularBase64 %>")
 					format("truetype-collection");
 				font-style: normal;
 			}
 			@font-face {
-				font-family: "CambriaBold";
+				font-family: "CambriaBoldEmbed";
 				src: url("data:font/ttf;charset=utf-8;base64,<%= fontBoldBase64 %>")
 					format("truetype");
 				font-style: normal;
 			}
 			@page {
 				size: A4;
-				margin-top: 2.70cm;
-				margin-bottom: 2.54cm;
+				margin-top: 3cm;
+				margin-bottom: 1.50cm;
 				margin-left: 2.54cm;
 				margin-right: 2.54cm;
 			}
 			body {
-				font-family: "CambriaRegular", "Cambria", "Times New Roman", serif;
+				font-family:
+					"CambriaRegularEmbed", "Cambria", "Times New Roman", serif;
 				font-size: 12pt;
 				line-height: 1.50;
 				color: #000;
 				margin: 0;
 			}
 			.bold {
-				font-family: "CambriaBold", "CambriaRegular", "Cambria", "Times New Roman",
-					serif;
+				font-family:
+					"CambriaBoldEmbed", "Cambria", "Times New Roman", serif;
 				font-weight: normal;
 			}
 			.underline {
@@ -134,7 +135,9 @@
 			}
 			.table th {
 				text-align: center;
-				font-weight: bold;
+				font-family:
+					"CambriaBoldEmbed", "Cambria", "Times New Roman", serif;
+				font-weight: normal;
 			}
 			.table td:last-child {
 				text-align: right;
@@ -142,7 +145,9 @@
 			}
 			.table .neg {
 				color: #c00000;
-				font-weight: bold;
+				font-family:
+					"CambriaBoldEmbed", "Cambria", "Times New Roman", serif;
+				font-weight: normal;
 			}
 			.signatures {
 				display: flex;
@@ -165,13 +170,13 @@
 	<body>
 		<div class="page">
 
-			<div class="text-center bold underline mt-4">
+			<div class="text-center bold underline">
 				INFORME DE GESTIÓN DE RECUPERACIONES N° <%= numero_informe %> - 2026 – COOP-AYAC
 			</div>
 
 			<div class="kv">
 				<div class="row"><span class="bold">A:</span> <%= para %></div>
-				<div class="row"><span class="bold">DE:</span> <%= de %></div>
+				<div class="row"><span class="bold">DE:</span> <%= de %> / Gestor de Recuperaciones</div>
 				<div class="row"><span class="bold">ASUNTO:</span> <%= asunto %> - socio <span class="bold"><%= nombre %></span></div>
 				<div class="row"><span class="bold">FECHA:</span> <%= fecha_emision_larga %></div>
 			</div>
@@ -194,148 +199,148 @@
 
 			<div class="bold mt-4">SEGUNDO: RECONOCIMIENTO DE DEUDA TOTAL</div>
 			<div class="text-justify mt-2">
-				EL DEUDOR reconoce de manera expresa, irrevocable y sin reserva alguna, que mantiene una deuda líquida y exigible con
-				LA COOPERATIVA por el crédito desembolsado el <span class="bold"><%= fecha_credito_larga %></span>, la cual asciende a la fecha a la suma total de
+				<span class="bold">EL DEUDOR</span> reconoce de manera expresa, irrevocable y sin reserva alguna, que mantiene una deuda líquida y exigible con
+				<span class="bold">LA COOPERATIVA</span> por el crédito desembolsado el <span class="bold"><%= fecha_credito_larga %></span>, la cual asciende a la fecha a la suma total de
 				S/ <span class="bold"><%= deuda_total %></span> (<%= deuda_total_texto %>), que incluye capital, intereses compensatorios, moratorios y gastos de cobranza.
 			</div>
 
 			<div class="bold mt-4">SEGUNDA: DEL BENEFICIO DE CONDONACIÓN E IMPORTE A PAGAR</div>
 			<div class="text-justify mt-2">
-				LA COOPERATIVA, en atención a la voluntad de pago del socio, accede a otorgar una <span class="bold">CONDONACIÓN PARCIAL</span>
+				<span class="bold">LA COOPERATIVA</span>, en atención a la voluntad de pago del socio, accede a otorgar una <span class="bold">CONDONACIÓN PARCIAL</span>
 				de la deuda bajo las siguientes condiciones:
 			</div>
-		</div>
-
-		<table class="table">
-			<thead>
-				<tr>
-					<th>CONCEPTO</th>
-					<th>DETALLE DE MONTOS</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td class="bold">ESTADO DE LA DEUDA ORIGINAL</td>
-					<td class="bold">S/ <%= deuda_total %></td>
-				</tr>
-				<tr>
-					<td>Saldo Capital</td>
-					<td>S/ <%= saldo_capital %></td>
-				</tr>
-				<tr>
-					<td>Interés Compensatorio</td>
-					<td>S/ <%= interes_compensatorio %></td>
-				</tr>
-				<tr>
-					<td>Interés Moratorio (Mora)</td>
-					<td>S/ <%= interes_moratorio %></td>
-				</tr>
-				<tr>
-					<td>Otros cargos</td>
-					<td>S/ <%= otros_cargos %></td>
-				</tr>
-				<tr>
-					<td class="bold">BENEFICIO CONDONADO</td>
-					<td class="neg">-S/ <%= beneficio_condonado %></td>
-				</tr>
-				<tr>
-					<td>Interés condonado</td>
-					<td>S/ <%= interes_condonado %></td>
-				</tr>
-				<tr>
-					<td>Mora condonada</td>
-					<td>S/ <%= mora_condonada %></td>
-				</tr>
-				<tr>
-					<td class="bold">MONTO PACTADO (CONGELAR)</td>
-					<td class="bold">S/ <%= monto_pactado %></td>
-				</tr>
-				<tr>
-					<td class="bold">ESTRUCTURA DE CANCELACIÓN</td>
-					<td class="bold">S/ <%= saldo_fraccionado %></td>
-				</tr>
-				<tr>
-					<td>Cuota Inicial (Pagada a la firma)</td>
-					<td>S/ <%= cuota_inicial %></td>
-				</tr>
-			</tbody>
-		</table>
-
-		<div class="text-justify mt-3">
-			<span class="bold">Condición:</span> Este beneficio de condonación solo se hará efectivo si <span class="bold">EL DEUDOR</span> cumple puntualmente con la totalidad de los pagos descritos en la cláusula tercera.
-		</div>
-
-		<div class="bold mt-4">TERCERA: CRONOGRAMA DE PAGOS Y CUOTA INICIAL</div>
-		<div class="text-justify mt-2">
-			El monto pactado de S/ <span class="bold"><%= saldo_fraccionado %></span> se cancelará de la siguiente manera.
-		<ul>
-			<li><span class="bold">CUOTA INICIAL:</span> S/ <%= cuota_inicial %> al momento de la firma del contrato.</li>
-			<li><span class="bold">CUOTAS MENSUALES:</span> S/ <%= cuota_mensual %> por cada una de las siguientes <span class="bold"><%= numero_cuotas %></span> cuotas.</li>
-		</ul>
-
-		<table class="table">
-			<thead>
-				<tr>
-					<th>CUOTA</th>
-					<th>FECHA DE VENCIMIENTO</th>
-					<th>MONTO A PAGAR</th>
-				</tr>
-			</thead>
-			<tbody>
-				<% cronograma.forEach((row) => { %>
-				<tr>
-					<td><%= row.cuota %></td>
-					<td><%= row.fecha_vencimiento %></td>
-					<td>S/ <%= row.monto %></td>
-				</tr>
-				<% }) %>
-			</tbody>
-			<tfoot>
-				<tr>
-					<td colspan="2" class="bold text-center">TOTAL</td>
-					<td class="bold">S/ <%= total_cronograma %></td>
-				</tr>
-			</tfoot>
-		</table>
-
-		<div class="text-justify mt-3">
-			Se ha pactado con EL DEUDOR la reestructuración del calendario de pagos para el
-			<span class="bold"><%= fecha_reprogramacion_larga %></span>. Este nuevo cronograma sustituye al actual,
-			ajustando los montos conforme a los términos acordados para la regularización de la deuda.
-		</div>
-
-		<div class="bold mt-4">CUARTA: CLÁUSULA RESOLUTORIA POR INCUMPLIMIENTO</div>
-		<div class="text-justify mt-2">
-			En caso de que EL DEUDOR incumpla con el pago de una (01) sola cuota en la fecha prevista,
-			el beneficio de condonación quedará automáticamente <span class="bold">SIN EFECTO</span>. de acuerdo al ACTA DE TRANSACCIÓN EXTRAJUDICIAL Y RECONOCIMIENTO DE DEUDA - N° <%= acta_transaccion %>. firmado el <span class="bold"><%= fecha_acta_transaccion %></span>. En tal escenario.
-		</div>
-		<ol class="list">
-			<li class="text-justify">
-				La deuda retornará a su estado original de S/ <span class="bold"><%= deuda_total %></span>, descontando únicamente los pagos parciales realizados.
-			</li>
-			<li class="text-justify">
-				<span class="bold">LA COOPERATIVA</span> procederá de inmediato con el cobro judicial, solicitando el embargo de bienes y cuentas por el monto total remanente,
-				más costas, costos y penalidades de ley.
-			</li>
-		</ol>
-
-		<div class="bold mt-4">QUINTO: CONCLUSIÓN</div>
-		<div class="text-justify mt-2">
-			Se eleva el presente informe recomendando la aprobación de las facilidades solicitadas, considerando que el socio no cuenta con respaldo documental,
-			pero ha demostrado voluntad de pago tras la visita y saneamiento de deuda.
-		</div>
-
-		<div class="mt-4">Atentamente,</div>
-
-		<div class="signatures">
-			<div class="sig">
-				<div class="sig-line"></div>
-				<div class="bold">ÁREA DE RECUPERACIONES</div>
+			<table class="table">
+				<thead>
+					<tr>
+						<th>CONCEPTO</th>
+						<th>DETALLE DE MONTOS</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td class="bold">ESTADO DE LA DEUDA ORIGINAL</td>
+						<td class="bold">S/ <%= deuda_total %></td>
+					</tr>
+					<tr>
+						<td>Saldo Capital</td>
+						<td>S/ <%= saldo_capital %></td>
+					</tr>
+					<tr>
+						<td>Interés Compensatorio</td>
+						<td>S/ <%= interes_compensatorio %></td>
+					</tr>
+					<tr>
+						<td>Interés Moratorio (Mora)</td>
+						<td>S/ <%= interes_moratorio %></td>
+					</tr>
+					<tr>
+						<td>Otros cargos</td>
+						<td>S/ <%= otros_cargos %></td>
+					</tr>
+					<tr>
+						<td class="bold">BENEFICIO CONDONADO</td>
+						<td class="neg">-S/ <%= beneficio_condonado %></td>
+					</tr>
+					<tr>
+						<td>Mora condonada</td>
+						<td>S/ <%= mora_condonada %></td>
+					</tr>
+					<tr>
+						<td>Interés condonado</td>
+						<td>S/ <%= interes_condonado %></td>
+					</tr>
+					<tr>
+						<td class="bold">MONTO PACTADO (CONGELAR)</td>
+						<td class="bold">S/ <%= monto_pactado %></td>
+					</tr>
+					<tr>
+						<td class="bold">ESTRUCTURA DE CANCELACIÓN</td>
+						<td class="bold">S/ <%= saldo_fraccionado %></td>
+					</tr>
+					<tr>
+						<td>Cuota Inicial (Pagada a la firma)</td>
+						<td>S/ <%= cuota_inicial %></td>
+					</tr>
+				</tbody>
+			</table>
+	
+			<div class="text-justify mt-3">
+				<span class="bold">Condición:</span> Este beneficio de condonación solo se hará efectivo si <span class="bold">EL DEUDOR</span> cumple puntualmente con la totalidad de los pagos descritos en la cláusula tercera.
 			</div>
-			<div class="sig">
-				<div class="sig-line"></div>
-				<div class="bold">ADMINISTRACIÓN DE CRÉDITOS</div>
+	
+			<div class="bold mt-4">TERCERA: CRONOGRAMA DE PAGOS Y CUOTA INICIAL</div>
+			<div class="text-justify mt-2">
+				El monto pactado de S/ <span class="bold"><%= saldo_fraccionado %></span> se cancelará de la siguiente manera.
+			<ul>
+				<li><span class="bold">CUOTA INICIAL:</span> S/ <%= cuota_inicial %> al momento de la firma del contrato.</li>
+				<li><span class="bold">CUOTAS MENSUALES:</span> S/ <%= cuota_mensual %> por cada una de las siguientes <span class="bold"><%= numero_cuotas %></span> cuotas.</li>
+			</ul>
+	
+			<table class="table">
+				<thead>
+					<tr>
+						<th>CUOTA</th>
+						<th>FECHA DE VENCIMIENTO</th>
+						<th>MONTO A PAGAR</th>
+					</tr>
+				</thead>
+				<tbody>
+					<% cronograma.forEach((row) => { %>
+					<tr>
+						<td><%= row.cuota %></td>
+						<td><%= row.fecha_vencimiento %></td>
+						<td>S/ <%= row.monto %></td>
+					</tr>
+					<% }) %>
+				</tbody>
+				<tfoot>
+					<tr>
+						<td colspan="2" class="bold text-center">TOTAL</td>
+						<td class="bold">S/ <%= total_cronograma %></td>
+					</tr>
+				</tfoot>
+			</table>
+	
+			<div class="text-justify mt-3">
+				Se ha pactado con <span class="bold">EL DEUDOR</span> la reestructuración del calendario de pagos para el
+				<span class="bold"><%= fecha_reprogramacion_larga %></span>. Este nuevo cronograma sustituye al actual,
+				ajustando los montos conforme a los términos acordados para la regularización de la deuda.
+			</div>
+	
+			<div class="bold mt-4">CUARTA: CLÁUSULA RESOLUTORIA POR INCUMPLIMIENTO</div>
+			<div class="text-justify mt-2">
+				En caso de que <span class="bold">EL DEUDOR</span> incumpla con el pago de una (01) sola cuota en la fecha prevista,
+				el beneficio de condonación quedará automáticamente <span class="bold">SIN EFECTO</span>. de acuerdo al <span class="bold">ACTA DE TRANSACCIÓN EXTRAJUDICIAL Y RECONOCIMIENTO DE DEUDA - N° <%= acta_transaccion %></span>. firmado el <span class="bold"><%= fecha_acta_transaccion %></span>. En tal escenario.
+			</div>
+			<ol class="list">
+				<li class="text-justify">
+					La deuda retornará a su estado original de S/ <span class="bold"><%= deuda_total %></span>, descontando únicamente los pagos parciales realizados.
+				</li>
+				<li class="text-justify">
+					<span class="bold">LA COOPERATIVA</span> procederá de inmediato con el cobro judicial, solicitando el embargo de bienes y cuentas por el monto total remanente,
+					más costas, costos y penalidades de ley.
+				</li>
+			</ol>
+	
+			<div class="bold mt-4">QUINTO: CONCLUSIÓN</div>
+			<div class="text-justify mt-2">
+				Se eleva el presente informe recomendando la aprobación de las facilidades solicitadas, considerando que el socio no cuenta con respaldo documental,
+				pero ha demostrado voluntad de pago tras la visita y saneamiento de deuda.
+			</div>
+	
+			<div class="mt-4">Atentamente,</div>
+	
+			<div class="signatures">
+				<div class="sig">
+					<div class="sig-line"></div>
+					<div class="bold">ÁREA DE RECUPERACIONES</div>
+				</div>
+				<div class="sig">
+					<div class="sig-line"></div>
+					<div class="bold">ADMINISTRACIÓN DE CRÉDITOS</div>
+				</div>
 			</div>
 		</div>
+
 	</body>
 </html>

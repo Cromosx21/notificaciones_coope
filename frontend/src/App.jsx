@@ -1,6 +1,5 @@
 import React from "react";
 import GeneratorForm from "./components/GeneratorForm";
-import "./App.css";
 
 function App() {
 	return (
@@ -11,7 +10,7 @@ function App() {
 
 			<div className="w-full max-w-5xl space-y-8 relative z-10">
 				<div className="text-center">
-					<div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 mb-6 shadow-lg shadow-violet-500/20">
+					<div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-linear-to-tr from-violet-600 to-indigo-600 mb-6 shadow-lg shadow-violet-500/20">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							className="h-8 w-8 text-white"
@@ -27,7 +26,7 @@ function App() {
 							/>
 						</svg>
 					</div>
-					<h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 tracking-tight">
+					<h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-white to-gray-400 tracking-tight">
 						Notificaciones
 					</h1>
 					<p className="mt-3 text-base text-gray-400 max-w-xs mx-auto">

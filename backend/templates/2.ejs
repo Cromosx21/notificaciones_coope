@@ -4,17 +4,15 @@
 		<meta charset="UTF-8" />
 		<style>
 			@font-face {
-				font-family: "Cambria";
-				src: url("data:font/truetype;charset=utf-8;base64,<%= fontRegularBase64 %>")
-					format("truetype");
-				font-weight: normal;
+				font-family: "CambriaRegularEmbed";
+				src: url("data:font/collection;charset=utf-8;base64,<%= fontRegularBase64 %>")
+					format("truetype-collection");
 				font-style: normal;
 			}
 			@font-face {
-				font-family: "Cambria";
-				src: url("data:font/truetype;charset=utf-8;base64,<%= fontBoldBase64 %>")
+				font-family: "CambriaBoldEmbed";
+				src: url("data:font/ttf;charset=utf-8;base64,<%= fontBoldBase64 %>")
 					format("truetype");
-				font-weight: bold;
 				font-style: normal;
 			}
 			@page {
@@ -25,7 +23,8 @@
 				margin-right: 2.54cm;
 			}
 			body {
-				font-family: "Cambria", "Times New Roman", serif;
+				font-family:
+					"CambriaRegularEmbed", "Cambria", "Times New Roman", serif;
 				font-size: 11pt;
 				line-height: 1.5;
 				color: #000;
@@ -40,7 +39,9 @@
 				text-align: justify;
 			}
 			.bold {
-				font-weight: bold;
+				font-family:
+					"CambriaBoldEmbed", "Cambria", "Times New Roman", serif;
+				font-weight: normal;
 			}
 			.underline {
 				text-decoration: underline;

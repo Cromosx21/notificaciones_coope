@@ -1,67 +1,73 @@
-# Sistema de Notificaciones PDF
+# Notificaciones — Generador de PDFs
 
-Este proyecto es un microservicio para generar PDFs a partir de plantillas de Word (.docx), rellenando datos desde un formulario web.
+Aplicación web para generar documentos PDF a partir de plantillas HTML (EJS) con firma visual corporativa (logo + Cambria embebida).
 
-## Requisitos Previos
+Incluye:
 
-1.  **Node.js** instalado (v14 o superior).
-2.  **LibreOffice** instalado en el sistema (necesario para la conversión a PDF).
-    *   Asegúrate de que el comando `soffice` o `libreoffice` esté accesible en tu PATH, o configura la ruta en `libreoffice-convert`.
-    *   En Windows, suele funcionar automáticamente si se instaló en la ruta por defecto.
+- Notificaciones (Cartas 1–4).
+- Documentación: Compromiso de Pago e Informe de Gestión.
 
-## Estructura del Proyecto
+## Stack
 
-*   `backend/`: Servidor Node.js/Express.
-    *   `templates/`: Carpeta donde debes colocar tu plantilla `.docx`.
-    *   `output/`: Carpeta temporal donde se generan los archivos.
-    *   `server.js`: Lógica del servidor.
-*   `frontend/`: Aplicación React + Vite.
-    *   `src/components/GeneratorForm.jsx`: Formulario de entrada de datos.
+- Frontend: React + Vite.
+- Backend: Node.js + Express.
+- Plantillas: EJS.
+- PDF: Puppeteer (local) / puppeteer-core + @sparticuz/chromium (Vercel).
 
-## Configuración de la Plantilla Word (.docx)
+## Estructura
 
-1.  Crea un archivo de Word (`.docx`).
-2.  Usa la sintaxis `{nombre_variable}` para los campos que quieras reemplazar.
-3.  Variables disponibles en el formulario actual:
-    *   `{nombre}`
-    *   `{dni}`
-    *   `{monto_total}`
-    *   `{plazo_pago}`
-    *   `{fecha_actual}` (se genera automáticamente)
-4.  Guarda el archivo como `template.docx`.
-5.  Mueve el archivo a la carpeta `backend/templates/`.
+- `backend/`
+    - `server.js`: API de generación.
+    - `lib/`: utilidades (fechas, montos, cronograma, assets, plantillas PDF).
+    - `templates/`: plantillas EJS de notificaciones y documentación.
+    - `fonts/`: Cambria embebida (`cambria.ttc`, `cambriab.ttf`).
+- `frontend/`
+    - `src/components/`: UI y formularios.
+    - `src/components/documentation/`: wizard por steps (Compromiso/Informe).
 
-## Instalación y Ejecución
+## Requisitos
 
-### 1. Backend
+- Node.js (recomendado 18+).
+
+## Instalación
+
+### Backend
 
 ```bash
 cd backend
 npm install
-# Iniciar servidor
 node server.js
 ```
-El servidor correrá en `http://localhost:5000`.
 
-### 2. Frontend
+### Frontend
 
 ```bash
 cd frontend
 npm install
-# Iniciar aplicación web
 npm run dev
 ```
-La aplicación correrá en `http://localhost:5173` (o el puerto que indique Vite).
 
-## Uso
+## Configuración (env)
 
-1.  Abre la aplicación web.
-2.  Rellena los datos del formulario.
-3.  Haz clic en "Generar y Descargar PDF".
-4.  Si todo es correcto, se descargará el PDF generado.
+- Frontend:
+    - `VITE_API_URL` (opcional). Si no se define, en desarrollo intenta `http://localhost:5000` y luego `http://localhost:5001`.
+- Backend:
+    - `PORT` (opcional, default 5000; si está ocupado intenta 5001, 5002, ...).
+    - `LEGAL_CONTACT_PHONE` (opcional, se inyecta en algunas notificaciones).
 
-## Notas Técnicas
+## Endpoints principales
 
-*   Se utiliza `docxtemplater` para reemplazar las variables en el `.docx`.
-*   Se utiliza `libreoffice-convert` para convertir el `.docx` modificado a `.pdf`.
-*   Si obtienes un error de conversión, verifica la instalación de LibreOffice.
+- `POST /generate-pdf` (Notificaciones)
+    - Body esperado (resumen): `templateId`, `nombre`, `dni`, `direction`, `monto_total`, `plazo_horas` (según carta), `interes`, `mora`.
+- `POST /generate-document` (Documentación)
+    - Body esperado (resumen): `docType` (`compromiso` | `informe`) y campos del wizard.
+
+## Notas
+
+- Para fechas de inputs HTML se envía `YYYY-MM-DD`. El backend las interpreta como fecha local para evitar desfases por zona horaria.
+- En Informe, el documento se dirige siempre a: `Administración de créditos / Gerencia de recuperaciones`.
+
+## Despliegue (Vercel)
+
+- El backend está preparado para serverless (usa `puppeteer-core` + `@sparticuz/chromium` cuando `VERCEL` está activo) y cuenta con `backend/vercel.json`.
+- En Vercel, configura `VITE_API_URL` en el frontend con la URL pública del backend.
